@@ -14,13 +14,13 @@ class Term(object):
         cls.profil = profil
 
 class Tweet(object):
-    def __init__(cls):
-        cls.id_str = None
-        cls.created_date = None
-        cls.tweet = None
-        cls.filter_tweet = None
-        cls.profil = None
-        cls.actual_sentiment = None
+    def __init__(cls,id_str = None,created_date = None,tweet = None,filter_tweet = None,profil = None,sentiment = None):
+        cls.id_str = id_str
+        cls.created_date = created_date
+        cls.tweet = tweet
+        cls.filter_tweet = filter_tweet
+        cls.profil = profil
+        cls.actual_sentiment = sentiment
 
 class TrainTweet(Tweet):
     def __init__(cls):
@@ -29,10 +29,10 @@ class TrainTweet(Tweet):
         cls.status_train = None
 
 class TestTweet(Tweet):
-    def __init__(cls):
-        cls.test_id = 0
-        super().__init__()
-        cls.predicted_sentiment = None
+    def __init__(cls,test_id=0,id_str = None,created_date = None,tweet = None,filter_tweet = None,profil = None,sentiment = None,pred_sentiment = None):
+        cls.test_id = test_id
+        super().__init__(id_str,created_date,tweet,filter_tweet,profil,sentiment)
+        cls.predicted_sentiment = pred_sentiment
 
 class Classification(object):
     def __init__(cls):
@@ -52,6 +52,9 @@ class TextAnalyze(object):
         cls.list_of_train_tokens = []
         cls.list_of_profile_trait = []
         cls.list_of_classification = []
+        cls.list_of_train_tweet_pos = []
+        cls.list_of_train_tweet_neg = []
+        cls.list_of_train_tweet_net = []
 
     def import_file_train_to_object(cls, fileName):
         train_id = 1
@@ -73,6 +76,7 @@ class TextAnalyze(object):
 
     def import_file_test_to_object(cls, fileName):
         test_id = 1
+        list_of_test_tweet = []
         with open(fileName) as csvfile:
             reader = csv.DictReader(csvfile)
             try:
@@ -85,29 +89,22 @@ class TextAnalyze(object):
                     obj_test_tweet.filter_tweet= ""
                     obj_test_tweet.actual_sentiment = row['label']
                     obj_test_tweet.predicted_sentiment = ""
-                    cls.list_of_test_tweet.append(obj_test_tweet)
+                    list_of_test_tweet.append(obj_test_tweet)
                     test_id+=1
             except csv.Error as e:
                 sys.exit('file {}, line {}: {}'.format(fileName, reader.line_num, e))
+
+        return list_of_test_tweet
 
     def train_data(cls):
         pass
 
     def test_data(cls,fileTest = None,fileEmoticon = None, negationWord = None, stopWord = None):
         if len(cls.list_of_train_tweet) >  0:
-            cls.import_file_test_to_object(fileName=fileTest)
+            list_of_test_tweet = cls.import_file_test_to_object(fileName=fileTest)
             cls.preprocessing(fileEmoticon=fileEmoticon,negationWord=negationWord,stopWord=stopWord,listOfTweet=cls.list_of_test_tweet)
-            for tweet in cls.list_of_test_tweet:
-                total_prob = {"positif":0,"negatif":0,"netral":0}
-                for term in tweet.filter_tweet:
-                    term.weight = float(sum(1 for token in tweet.filter_tweet if token.name == term.name)/len(tweet.filter_tweet))
-                    for cmp in cls.list_of_classification:
-                        if term.name == cmp.term_name:
-                            total_prob['positif'] += (cmp.prob_pos*term.weight)
-                            total_prob['negatif'] += (cmp.prob_neg*term.weight)
-                            total_prob['netral'] += (cmp.prob_net*term.weight)
-                print("prob_pos :{},prob_neg:{},prob_net:{}".format(total_prob['positif'],total_prob['negatif'],total_prob['netral']))
-                tweet.predicted_sentiment = min(total_prob, key=lambda key: total_prob[key])
+            model_classification = cls.naive_bayes_make_classification_model(lot=cls.list_of_train_tweet)
+            test_result = cls.naive_bayes_determine_classification(lot=list_of_test_tweet,loc=model_classification)
         else:
             print("Please make data train first")
 
@@ -116,29 +113,48 @@ class TextAnalyze(object):
         for token in cls.list_of_train_tokens:
             print("id_token:{id} ,nama_token :{name}, count_token:{count} , idf:{idf}".format(id=token.get('id'),name=token.get('name'),count=token.get('count'),idf=token.get('idf')))
 
-    def print_train_tweet(cls):
-        for tw in cls.list_of_train_tweet:
-            print("id tweet: {} , id_train : {}, tweet : {} ,profil :{}" .format(tw.id_str,tw.train_id,tw.tweet,tw.profil))
+    def print_train_tweet(cls,lot):
+        for tw in lot:
+            print("id tweet: {} , id_train : {}, tweet : {} ,profil :{},sentiment:{}" .format(tw.id_str,tw.train_id,tw.tweet,tw.profil,tw.actual_sentiment))
             for term in tw.filter_tweet:
                 print("id : {id} , term : {name} , weight :{tfidf}".format(id=term.id,name=term.name,tfidf=term.weight))
 
-    def print_test_tweet(cls):
-        for tw in cls.list_of_test_tweet:
-            print("id tweet: {} , id_train : {}, tweet : {} ,profil :{},actual sentiment:{} , predicted :{}" .format(tw.id_str,tw.train_id,tw.tweet,tw.profil,tw.actual_sentiment,tw.predicted_sentiment))
+    def print_test_tweet(cls,lot):
+        for tw in lot:
+            print("id tweet: {} , id_test : {}, tweet : {} ,profil :{},actual sentiment:{} , predicted :{}" .format(tw.id_str,tw.test_id,tw.tweet,tw.profil,tw.actual_sentiment,tw.predicted_sentiment))
             for term in tw.filter_tweet:
                 print("id : {id} , term : {name} , weight :{tfidf}".format(id=term.id,name=term.name,tfidf=term.weight))
 
-    def print_cls(cls,loc=[]):
+    def print_cls(cls,loc):
         for term in loc:
             print("term:{}, prob_pos:{}, prob_neg:{}, prob_net:{}".format(term.term_name,term.prob_pos,term.prob_neg,term.prob_net))
 
-    def naive_bayes_classification(cls):
-        cls.initialization_classification_model()
-        cls.list_of_classification = copy.deepcopy(cls.naive_bayes_normalization(cls.naive_bayes_weight(cls.naive_bayes_complement())))
+    def naive_bayes_make_classification_model(cls, lot):
+        loc = cls.initialization_classification_model(lot)
+        list_of_classification = copy.deepcopy(cls.naive_bayes_normalization(cls.naive_bayes_weight(cls.naive_bayes_complement(loc))))
+        return list_of_classification
 
+    def naive_bayes_determine_classification(cls,lot,loc):
+        list_of_test_tweet = copy.deepcopy(lot)
+        for tweet in list_of_test_tweet:
+            total_prob = {"positif": 0, "negatif": 0, "netral": 0}
+            for term in tweet.filter_tweet:
+                term.weight = float(
+                    sum(1 for token in tweet.filter_tweet if token.name == term.name) / len(tweet.filter_tweet))
+                for cmp in loc:
+                    if term.name == cmp.term_name:
+                        total_prob['positif'] += (cmp.prob_pos * term.weight)
+                        total_prob['negatif'] += (cmp.prob_neg * term.weight)
+                        total_prob['netral'] += (cmp.prob_net * term.weight)
+            #print("prob_pos :{},prob_neg:{},prob_net:{}".format(total_prob['positif'], total_prob['negatif'], total_prob['netral']))
 
-    def initialization_classification_model(cls):
-        for tweet in cls.list_of_train_tweet:
+            tweet.predicted_sentiment = min(total_prob, key=lambda key: total_prob[key])
+        return list_of_test_tweet
+
+    def initialization_classification_model(cls,lot):
+        list_of_train = copy.deepcopy(lot)
+        list_of_classification = []
+        for tweet in list_of_train:
             sentiment = tweet.actual_sentiment.lower()
             for term in tweet.filter_tweet:
                 temp_cls = Classification()
@@ -146,13 +162,15 @@ class TextAnalyze(object):
                     temp_cls.term_name = term.name
                     temp_cls.term_id = term.id
                     cls.add_prob_by_sentiment(sentiment=sentiment,obj_cls=temp_cls, tfidf_value=term.weight)
-                    cls.list_of_classification.append(temp_cls)
+                    list_of_classification.append(temp_cls)
                 else:
-                    for term_prob in cls.list_of_classification:
+                    for term_prob in list_of_classification:
                         if term_prob.term_id == term.id:
                             cls.add_prob_by_sentiment(sentiment=sentiment,obj_cls=term_prob, tfidf_value=term.weight)
+        return list_of_classification
 
-    def naive_bayes_complement(cls):
+    def naive_bayes_complement(cls,loc):
+        list_of_classification = copy.deepcopy(loc)
         list_of_complement = []
         laplace_smooting = 1
         vocabulary = len(cls.list_of_train_tokens)
@@ -160,12 +178,12 @@ class TextAnalyze(object):
         total_complement_pos = 0
         total_complement_neg = 0
         total_complement_net = 0
-        for term_cls in cls.list_of_classification:
+        for term_cls in list_of_classification:
             total_complement_pos += term_cls.prob_neg + term_cls.prob_net
             total_complement_neg += term_cls.prob_pos + term_cls.prob_net
             total_complement_net += term_cls.prob_pos + term_cls.prob_neg
         #print("total_pos:{},total_neg:{},total_net:{}".format(total_complement_pos,total_complement_neg,total_complement_net))
-        for term_cls in cls.list_of_classification:
+        for term_cls in list_of_classification:
             complement = Classification()
             complement.term_name = term_cls.term_name
             complement.term_id = term_cls.term_id
@@ -227,15 +245,78 @@ class TextAnalyze(object):
     def group_term_by_sentiment(cls):
         pass
 
+    def k_fold_cross_validation(cls,lot,K):
+        """
+        :param lot: tweet data latih 
+        :param K: jumlah dari K pada cross validation
+        :return: 
+        """
+        if len(lot) >= K :
+            total_accuracy = 0
+            for i in range(0,K):
+                list_of_validation_tweet = []
+                list_of_validation_tweet_pos = [tweet for idx,tweet in enumerate(cls.list_of_train_tweet_pos) if idx % K == i]
+                list_of_validation_tweet_neg = [tweet for idx,tweet in enumerate(cls.list_of_train_tweet_neg) if idx % K == i]
+                list_of_validation_tweet_net = [tweet for idx,tweet in enumerate(cls.list_of_train_tweet_net) if idx % K == i]
+                list_of_validation_tweet.extend(list_of_validation_tweet_pos)
+                list_of_validation_tweet.extend(list_of_validation_tweet_neg)
+                list_of_validation_tweet.extend(list_of_validation_tweet_net)
+                lot_test = []
+                id_test = 0
+                for tweet in list_of_validation_tweet:
+                    temp_test = TestTweet(
+                        test_id=id_test,
+                        id_str=tweet.id_str,
+                        created_date=tweet.created_date,
+                        tweet=tweet.tweet,
+                        filter_tweet=tweet.filter_tweet,
+                        sentiment=tweet.actual_sentiment
+                    )
+                    lot_test.append(temp_test)
+                    id_test +=1
+                list_of_train_tweet = [tweet for idx,tweet in enumerate(lot) if tweet not in list_of_validation_tweet]
+                list_of_train_tokens = cls.initialize_train_tokens(list_of_train_tweet)
+                cls.feature_extraction(list_of_train_tweet,list_of_train_tokens)
+                cls.grouping_profil(list_of_train_tweet)
+                model_classification = cls.naive_bayes_make_classification_model(lot=list_of_train_tweet)
+                test_result = cls.naive_bayes_determine_classification(lot=lot_test,loc=model_classification)
+                accuracy = cls.calculate_accuracy(lot=test_result)
+                total_accuracy += accuracy
+                # print("Train-------------{}".format(i))
+                # cls.print_train_tweet(list_of_train_tweet)
+                print("Validasi-----------{} | accuracy  {} ".format(i,str(accuracy)))
+                test = [1,2,3,4,5]
+                print("lengt:{}".format(len(test)))
+                cls.print_test_tweet(test_result)
+            mean_accuracy = float(total_accuracy/K)
+            print("K-Fold {k} -- Accuracy : {acc}".format(k=K,acc=str(mean_accuracy)))
+
+    def calculate_accuracy(cls,lot):
+        correct = 1
+        for tweet in lot:
+            if tweet.predicted_sentiment.lower() == tweet.actual_sentiment.lower():
+                correct+=1
+        return float(((correct/(len(lot)+1))*100))
+
+    def group_by_sentiment(cls,lot):
+        for tweet in lot:
+            if tweet.actual_sentiment.lower() == "positif":
+                cls.list_of_train_tweet_pos.append(tweet)
+            elif tweet.actual_sentiment.lower() == "negatif":
+                cls.list_of_train_tweet_neg.append(tweet)
+            else:
+                cls.list_of_train_tweet_net.append(tweet)
+
     #--------------------------- ekstraksi fitur ------------------------------------------
     #def initialize_term(cls):
 
-    def initialize_train_tokens(cls,base_selection = 0):
+    def initialize_train_tokens(cls,lot,base_selection = 0):
         """
         :return: membentuk token/kata yang unik dari daftar term pada data latih 
         """
         tokens = []
-        for tweet in cls.list_of_train_tweet:
+        list_of_train_tokens = []
+        for tweet in lot:
             for term in tweet.filter_tweet:
                 tokens.append(term.name)
         list_of_tokens = list(set(tokens))
@@ -243,15 +324,17 @@ class TextAnalyze(object):
         index = 1
         for token in list_of_tokens:
             count_token = 0
-            for tweet in cls.list_of_train_tweet:
+            for tweet in lot:
                 #count = Counter(getattr(term,'name') for term in tweet.filter_tweet)
                 #count_token = count_token + tweet.filter_tweet.count(token)
                 #count_token += count[token]
                 count_token += sum(1 for term in tweet.filter_tweet if term.name == token)
             if count_token >= base_selection:
-                cls.list_of_train_tokens.append({"id":index, "name":token, "count":count_token , "idf": ""})
+                list_of_train_tokens.append({"id":index, "name":token, "count":count_token , "idf": ""})
                 index+=1
         print('initialize tokens done..')
+        return list_of_train_tokens
+
 
     def initialize_profil_trait(cls, fileName = None, list_tr1=[], list_tr2 = [], list_tr3 = [], list_tr4 = [], list_tr5 = [], list_tr6 = [], list_tr7 = []):
         with open(fileName,'r') as csvfile:
@@ -281,11 +364,11 @@ class TextAnalyze(object):
                 trait['TR6'] = list(list_tr6)
                 trait['TR7'] = list(list_tr7)
                 cls.list_of_profile_trait.append(trait)
-                print(cls.list_of_profile_trait)
+                #print(cls.list_of_profile_trait)
             except csv.Error as e:
                 sys.exit('file {}, line {}: {}'.format(fileName, reader.line_num, e))
 
-    def grouping_profil(cls,lot = []):
+    def grouping_profil(cls,lot):
         for tweet in lot:
             if cls.is_filter_tweet_empty(tweet.filter_tweet) == False:
                 for term in tweet.filter_tweet:
@@ -302,15 +385,15 @@ class TextAnalyze(object):
                 if term == trait:
                    return "TR"+str(i)
 
-    def feature_extraction(cls, normalize_euclidean = True, feature_selection = True):
+    def feature_extraction(cls, lot,list_of_tokens,normalize_euclidean = True, feature_selection = True):
         """
         :return: filter_tweet yang berisi object term, dimana untuk masing-masing
         object term pada sebuah tweet sudah diberi bobot tfidf 
         """
         if feature_selection:
-            for tweet in cls.list_of_train_tweet:
-                tweet.filter_tweet = cls.feature_selection(tweet.filter_tweet, cls.list_of_train_tokens)
-        cls.calculate_idf()
+            for tweet in lot:
+                tweet.filter_tweet = cls.feature_selection(tweet.filter_tweet, list_of_tokens)
+        cls.calculate_idf(list_of_tokens,lot)
         # for tweet in cls.list_of_train_tweet:
         #     tfidf = []
         #     temp_tfidf = []
@@ -326,18 +409,18 @@ class TextAnalyze(object):
         #                 tfidf.append(temp_term)
         #     temp_tfidf.extend(tfidf)
         #     tweet.filter_tweet = list(temp_tfidf)
-        for tweet in cls.list_of_train_tweet:
+        for tweet in lot:
             for term in tweet.filter_tweet:
                 tf = cls.calculate_tf(term.name, tweet.filter_tweet)
                 idf = 0
                 id = 0
-                for token in cls.list_of_train_tokens:
+                for token in list_of_tokens:
                     if token['name'] == term.name:
                         idf = token['idf']
                         id = token['id']
                 # tfidf.append({token : float(tf * idf[token])})
                 term.weight = float(tf * idf )
-                print("term {} f:{} ,idf:{} , tf-idf:{}".format(term.name, tf,idf,term.weight))
+                #print("term {} f:{} ,idf:{} , tf-idf:{}".format(term.name, tf,idf,term.weight))
                 term.id = id
                 if term.weight <= 0 :
                     del term
@@ -346,17 +429,17 @@ class TextAnalyze(object):
                 cls.calculate_norm_euclidean(tweet.filter_tweet)
         print("feature extraction done...")
 
-    def calculate_idf(cls):
-        for tokens in cls.list_of_train_tokens:
+    def calculate_idf(cls,list_of_tokens,lot):
+        for tokens in list_of_tokens:
             count_token = 0
-            for tweet in cls.list_of_train_tweet:
+            for tweet in lot:
                 #count = Counter(getattr(term, 'name') for term in tweet.filter_tweet)
                 #if tokens['name'] in tweet.filter_tweet:
                 if any(term.name == tokens['name'] for term in tweet.filter_tweet):
                     count_token+=1
             if count_token == 0:
                 count_token = 1
-            tokens['idf'] = float(math.log(len(cls.list_of_train_tweet) / count_token, 10))
+            tokens['idf'] = float(math.log(len(lot) / count_token, 10))
 
     def calculate_tf(cls, token, filterTweet):
         laplace_smoothing = 1
@@ -539,6 +622,6 @@ class TextAnalyze(object):
                 elif word not in stopWord:
                     tweet_stop.append(word)
         #tweet_stop = [word for idx,word in tweet if word not in stopWord and word[idx-1] not in negationWord]
-        print(tweet_stop)
+        #print(tweet_stop)
         return tweet_stop
 
