@@ -1,5 +1,6 @@
 import csv , sys , re , string , enum , math , copy
 from nltk import word_tokenize
+from prettytable import PrettyTable
 from itertools import count
 
 from nltk.tokenize import RegexpTokenizer
@@ -245,7 +246,7 @@ class TextAnalyze(object):
     def group_term_by_sentiment(cls):
         pass
 
-    def k_fold_cross_validation(cls,lot,K):
+    def k_fold_cross_validation(cls,lot,K=3):
         """
         :param lot: tweet data latih 
         :param K: jumlah dari K pada cross validation
@@ -253,6 +254,9 @@ class TextAnalyze(object):
         """
         if len(lot) >= K :
             total_accuracy = 0
+            total_precision = [0,0,0]
+            total_recall = [0,0,0]
+            total_f_measure = [0,0,0]
             for i in range(0,K):
                 list_of_validation_tweet = []
                 list_of_validation_tweet_pos = [tweet for idx,tweet in enumerate(cls.list_of_train_tweet_pos) if idx % K == i]
@@ -280,16 +284,29 @@ class TextAnalyze(object):
                 cls.grouping_profil(list_of_train_tweet)
                 model_classification = cls.naive_bayes_make_classification_model(lot=list_of_train_tweet)
                 test_result = cls.naive_bayes_determine_classification(lot=lot_test,loc=model_classification)
+
+                conf_matrix = cls.make_confusion_matrix(test_result)
+                precision,recall,f_measure = cls.calculate_precision_recall_f1_measure(conf_matrix)
+                total_precision = [sum(x) for x in zip(precision,total_precision)]
+                total_recall = [sum(x) for x in zip(recall,total_recall)]
+                total_f_measure = [sum(x) for x in zip(f_measure,total_f_measure)]
                 accuracy = cls.calculate_accuracy(lot=test_result)
                 total_accuracy += accuracy
-                # print("Train-------------{}".format(i))
-                # cls.print_train_tweet(list_of_train_tweet)
+
+
                 print("Validasi-----------{} | accuracy  {} ".format(i,str(accuracy)))
-                test = [1,2,3,4,5]
-                print("lengt:{}".format(len(test)))
                 cls.print_test_tweet(test_result)
             mean_accuracy = float(total_accuracy/K)
+            mean_precision = [float(x/K) for x in total_precision]
+            mean_recall = [float(x/K) for x in total_recall]
+            mean_f_measure = [float(x/K) for x in total_f_measure]
             print("K-Fold {k} -- Accuracy : {acc}".format(k=K,acc=str(mean_accuracy)))
+            t = PrettyTable(['Kelas','Precision','Recall','F-Measure'])
+            t.add_row(["Positif",mean_precision[0],mean_recall[0],mean_f_measure[0]])
+            t.add_row(["Negatif",mean_precision[1],mean_recall[1],mean_f_measure[1]])
+            t.add_row(["Netral",mean_precision[2],mean_recall[2],mean_f_measure[2]])
+            print(t)
+
 
     def calculate_accuracy(cls,lot):
         correct = 1
@@ -297,6 +314,74 @@ class TextAnalyze(object):
             if tweet.predicted_sentiment.lower() == tweet.actual_sentiment.lower():
                 correct+=1
         return float(((correct/(len(lot)+1))*100))
+
+    def make_confusion_matrix(cls,lot):
+        """
+        Membuat confusion matrix 3x3 dimana column berupa
+        [=======================Nilai_aktual_positif    Nilai_aktual_negatif    Nilai_aktual_netral]
+        [Nilai_predicted_positif    0                       0                       0
+        [Nilai_predicted_negatif    0                       0                       0
+        [Nilai_predicted_netral     0                       0                       0
+        
+        Dimana untuk True Positif adalah nilai diagonal
+        False Negatif adalah nilai column
+        False Positif adalah nilai row
+        """
+        conf_matrix = [[0,0,0],[0,0,0],[0,0,0]]
+        for tweet in lot:
+            actual = tweet.actual_sentiment.lower()
+            predicted = tweet.predicted_sentiment.lower()
+            if actual == "positif":
+                if predicted == "positif":
+                    conf_matrix[0][0] += 1
+                elif predicted == "negatif":
+                    conf_matrix[1][0] += 1
+                else:
+                    conf_matrix[2][0] += 1
+            elif actual == "negatif":
+                if predicted == "positif":
+                    conf_matrix[0][1] += 1
+                elif predicted == "negatif":
+                    conf_matrix[1][1] += 1
+                else:
+                    conf_matrix[2][1] += 1
+            else:
+                if predicted == "positif":
+                    conf_matrix[0][2] += 1
+                elif predicted == "negatif":
+                    conf_matrix[1][2] += 1
+                else:
+                    conf_matrix[2][2] += 1
+        return conf_matrix
+
+    def calculate_precision_recall_f1_measure(cls,conf_matrix):
+        """
+        input confusion matrix dengan format:
+        [=======================Nilai_aktual_positif    Nilai_aktual_negatif    Nilai_aktual_netral]
+        [Nilai_predicted_positif    0                       0                       0
+        [Nilai_predicted_negatif    0                       0                       0
+        [Nilai_predicted_netral     0                       0                       0
+        
+        Output berupa matrix 1x3 dengan nilai precision dengan urutan pos,neg,net
+        Output berupa matrix 1x3 dengan nilai recall dengan urutan pos,neg,net
+        """
+        precision_matrix = []
+        recall_matrix = []
+        f_measure_matrix = []
+        for i in range(3):
+            TP = conf_matrix[i][i]
+            FP = 0
+            FN = 0
+            for j in range(3):
+                FP += conf_matrix[i][j]
+                FN += conf_matrix[j][i]
+            precision = float((TP+1)/(FP+1))
+            recall = float((TP+1)/(FN+1))
+            precision_matrix.append(precision*100)
+            recall_matrix.append(recall*100)
+            f_measure_matrix.append(float((2*precision*recall)/(precision+recall))*100)
+
+        return precision_matrix,recall_matrix,f_measure_matrix
 
     def group_by_sentiment(cls,lot):
         for tweet in lot:

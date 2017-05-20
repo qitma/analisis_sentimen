@@ -22,7 +22,7 @@ textAnalyze.group_by_sentiment(textAnalyze.list_of_train_tweet)
 # textAnalyze.print_train_tweet(textAnalyze.list_of_train_tweet_pos)
 # textAnalyze.print_train_tweet(textAnalyze.list_of_train_tweet_neg)
 # textAnalyze.print_train_tweet(textAnalyze.list_of_train_tweet_net)
-textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=10)
+textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=3)
 #textAnalyze.print_filter_tweet_empty()
 # textAnalyze.feature_extraction(list_of_tokens=list_of_train_tokens,lot=textAnalyze.list_of_train_tweet)
 
