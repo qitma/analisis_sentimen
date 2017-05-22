@@ -322,7 +322,9 @@ class TextAnalyze(object):
                     tot_tp = [sum(x) for x in zip(tp, tot_tp)]
                     tot_fp = [sum(x) for x in zip(fp, tot_fp)]
                     tot_fn = [sum(x) for x in zip(fn, tot_fn)]
-
+            print("precision:{}".format(tot_precision))
+            print("recall:{}".format(tot_recall))
+            print("f-measure:{}".format(tot_f_measure))
             if averaging.lower() == "macro":
                 table = cls.evaluation_performance(param_eval1=tot_precision,param_eval2=tot_recall,
                                                    param_eval3=tot_f_measure,averaging=averaging,
@@ -455,18 +457,18 @@ class TextAnalyze(object):
                 FP += conf_matrix[i][j]
                 FN += conf_matrix[j][i]
                # print("i:{},j:{},FP:{},FN:{}".format(i,j,FP,FN))
-                if averaging.lower() == "macro":
-                    precision = float(TP/FP) if FP>0 else 0
-                    recall = float(TP/FN) if FN>0 else 0
-                    print("precision:{},recall:{}".format(precision,recall))
-                    #print("TP:{},FP:{},FN:{}".format(TP,FP,FN))
-                    precision_matrix.append(precision*100)
-                    recall_matrix.append(recall*100)
-                    f_measure_matrix.append((float((2*precision*recall)/(precision+recall))*100) if precision > 0 and recall > 0 else 0)
-                else :
-                    TP_matrix.append(TP)
-                    FP_matrix.append(FP)
-                    FN_matrix.append(FN)
+            if averaging.lower() == "macro":
+                precision = float(TP/FP) if FP>0 else 0
+                recall = float(TP/FN) if FN>0 else 0
+                print("precision:{},recall:{}".format(precision,recall))
+                #print("TP:{},FP:{},FN:{}".format(TP,FP,FN))
+                precision_matrix.append(precision*100)
+                recall_matrix.append(recall*100)
+                f_measure_matrix.append((float((2*precision*recall)/(precision+recall))*100) if precision > 0 and recall > 0 else 0)
+            else :
+                TP_matrix.append(TP)
+                FP_matrix.append(FP)
+                FN_matrix.append(FN)
         if averaging.lower() == "macro":
             return precision_matrix,recall_matrix,f_measure_matrix
         else:
