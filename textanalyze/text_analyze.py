@@ -1,48 +1,18 @@
 import csv , sys , re , string , enum , math , copy
 from nltk import word_tokenize
 from prettytable import PrettyTable
-from itertools import count
+#from itertools import count
 import random
-
-from nltk.tokenize import RegexpTokenizer
-from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from collections import Counter
+#from nltk.tokenize import RegexpTokenizer
+from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 
-class Term(object):
-    def __init__(cls,name=None,id=None,weight = 0,profil = None):
-        cls.id = id
-        cls.name = name
-        cls.weight = weight
-        cls.profil = profil
-
-class Tweet(object):
-    def __init__(cls,id_str = None,created_date = None,tweet = None,filter_tweet = None,profil = None,sentiment = None):
-        cls.id_str = id_str
-        cls.created_date = created_date
-        cls.tweet = tweet
-        cls.filter_tweet = filter_tweet
-        cls.profil = profil
-        cls.actual_sentiment = sentiment
-
-class TrainTweet(Tweet):
-    def __init__(cls):
-        cls.train_id = 0
-        super().__init__()
-        cls.status_train = None
-
-class TestTweet(Tweet):
-    def __init__(cls,test_id=0,id_str = None,created_date = None,tweet = None,filter_tweet = None,profil = None,sentiment = None,pred_sentiment = None):
-        cls.test_id = test_id
-        super().__init__(id_str,created_date,tweet,filter_tweet,profil,sentiment)
-        cls.predicted_sentiment = pred_sentiment
-
-class Classification(object):
-    def __init__(cls):
-        cls.term_name = None
-        cls.term_id = None
-        cls.prob_pos = 0
-        cls.prob_neg = 0
-        cls.prob_net = 0
+from tweet import Tweet
+from traintweet import TrainTweet
+from testtweet import TestTweet
+from term import Term
+from classification import Classification
+from clustering import  Clustering
 
 class TextAnalyze(object):
     def __init__(cls):
@@ -57,6 +27,7 @@ class TextAnalyze(object):
         cls.list_of_train_tweet_pos = []
         cls.list_of_train_tweet_neg = []
         cls.list_of_train_tweet_net = []
+        cls.list_of_cluster_tweet = []
 
     def import_file_train_to_object(cls, fileName):
         train_id = 1
@@ -97,27 +68,6 @@ class TextAnalyze(object):
                 sys.exit('file {}, line {}: {}'.format(fileName, reader.line_num, e))
 
         return list_of_test_tweet
-
-    def train_data(cls):
-        pass
-
-    def test_data(cls,train_token,fileTest,fileEmoticon , negationWord, stopWord):
-        if len(cls.list_of_train_tweet) >  0:
-            list_of_test_tweet = cls.import_file_test_to_object(fileName=fileTest)
-            cls.preprocessing(fileEmoticon=fileEmoticon,negationWord=negationWord,stopWord=stopWord,listOfTweet=list_of_test_tweet)
-            for tweet in list_of_test_tweet:
-                for term in tweet.filter_tweet:
-                    term.weight =cls.calculate_tf(token=term.name, filterTweet=tweet.filter_tweet, isTrain=False)
-            cls.grouping_profil(lot=list_of_test_tweet)
-            model_classification = cls.naive_bayes_make_classification_model(lot=cls.list_of_train_tweet,train_token = train_token)
-            test_result = cls.naive_bayes_determine_classification(lot=list_of_test_tweet,loc=model_classification)
-
-            return test_result
-        else:
-            print("Please make data train first")
-
-        return None
-
     def print_token(cls):
         for token in cls.list_of_train_tokens:
             print("id_token:{id} ,nama_token :{name}, count_token:{count} , idf:{idf}".format(id=token.get('id'),name=token.get('name'),count=token.get('count'),idf=token.get('idf')))
@@ -138,12 +88,134 @@ class TextAnalyze(object):
         for term in loc:
             print("term:{}, prob_pos:{}, prob_neg:{}, prob_net:{}".format(term.term_name,term.prob_pos,term.prob_neg,term.prob_net))
 
+    def print_cluster(cls,loc):
+        t = PrettyTable(['Train ID', 'Group'])
+        for tweet in loc:
+            t.add_row([tweet.cluster_id,tweet.cluster])
+        print(t)
+
+    def train_data(cls):
+        pass
+
+    def test_data(cls,train_token,fileTest,fileEmoticon , negationWord, stopWord):
+        if len(cls.list_of_train_tweet) >  0:
+            list_of_test_tweet = cls.import_file_test_to_object(fileName=fileTest)
+            cls.preprocessing(fileEmoticon=fileEmoticon,negationWord=negationWord,stopWord=stopWord,listOfTweet=list_of_test_tweet)
+            for tweet in list_of_test_tweet:
+                for term in tweet.filter_tweet:
+                    term.weight =cls.calculate_tf(token=term.name, filterTweet=tweet.filter_tweet, isTrain=False)
+            cls.grouping_profil(lot=list_of_test_tweet)
+            model_classification = cls.naive_bayes_make_classification_model(lot=cls.list_of_train_tweet,train_token = train_token)
+            test_result = cls.naive_bayes_determine_classification(lot=list_of_test_tweet,loc=model_classification)
+
+            return test_result
+        else:
+            print("Please make data train first")
+
+        return None
+#======================== Clustering =================================
+    def clustering_k_means (cls,list_of_tweet,cluster_K = 3, is_random = True):
+        list_of_centroid = []
+        list_of_clustering = []
+        lot = copy.deepcopy(list_of_tweet)
+        centroid_candidate = copy.deepcopy(list_of_tweet)
+        for i in range(cluster_K):
+            idx = random.randint(0,len(centroid_candidate)-1)
+            #cluster = {}
+            cluster = {'group_name':'group'+str(i+1),'centroid':centroid_candidate[idx]}
+            list_of_centroid.append(cluster)
+            centroid_candidate.pop(idx)
+
+        for tweet in lot:
+            temp_cluster = Clustering(cluster_id=tweet.train_id,tweet=tweet)
+            list_of_clustering.append(temp_cluster)
+
+        convergen = False
+        max_iteration = 20
+        iteration = 0
+        while(not convergen):
+            count = 0
+            t = PrettyTable(['Train ID',"Distance",'Group'])
+            for tw_clus in list_of_clustering:
+                distance = {}
+                for centroid in list_of_centroid:
+                    distance[centroid['group_name']] = cls.euclidean_distance(tw_clus.tweet.filter_tweet,centroid['centroid'].filter_tweet)
+                tw_clus.distance = distance
+                temp_cluster = copy.deepcopy(tw_clus.cluster)
+                tw_clus.cluster = min(tw_clus.distance, key=tw_clus.distance.get)
+                t.add_row([tw_clus.cluster_id,tw_clus.distance,tw_clus.cluster])
+                if temp_cluster == tw_clus.cluster:
+                    count +=1
+            print(t)
+            if count == len(list_of_clustering) or iteration > max_iteration :
+                convergen = True
+            list_of_centroid = copy.deepcopy(cls.generate_new_centroid(cluster_K=cluster_K,list_of_clustering=list_of_clustering))
+            iteration +=1
+            cls.print_cluster(list_of_clustering)
+        print("iterasi:{}".format(str(iteration)))
+        return list_of_clustering
+
+    def generate_new_centroid (cls,cluster_K,list_of_clustering):
+        loc = copy.deepcopy(list_of_clustering)
+        list_of_centroid = []
+        for i in range(0,cluster_K):
+            temp_dict = Counter({})
+            denominator = 0
+            for tw_c in loc:
+                if tw_c.cluster == 'group'+str(i+1):
+                    dict_c = Counter(cls.create_dict_term_by_id(tw_c.tweet.filter_tweet))
+                    temp_dict = temp_dict + dict_c
+                    denominator += 1
+            filter_tw = [Term(id=key,weight=float(temp_dict[key]/denominator)) for key in temp_dict]
+            cluster = {'group_name': 'group' + str(i + 1), 'centroid': Tweet(filter_tweet=filter_tw)}
+            list_of_centroid.append(cluster)
+
+        return list_of_centroid
+
+
+    def euclidean_distance (cls, tweet, centroid):
+        """
+        :param tweet: berupa message yang sudah di filter alias list of term dari tweet yang ingin dicari jaraknya 
+        :param centroid:  berupa message yang sudah di filter alias list of term dari tweet sebagai centroid
+        :return: 
+        """
+        dict_t = Counter(cls.create_dict_term_by_id(tweet))
+        dict_c = Counter(cls.create_dict_term_by_id(centroid))
+        dict_t.subtract(dict_c)
+        distance = 0
+        for val in dict_t.values():
+            distance += math.pow(val,2)
+
+        return math.sqrt(distance)
+        # temp_distance = 0
+        # for term_t in tweet:
+        #     check = True
+        #     for  term_c in centroid:
+        #         if term_t.id == term_c.id:
+        #             temp_distance += math.pow((term_t.weight - term_c.weight),2)
+        #             check = False
+        #     if check:
+        #         temp_distance += math.pow(term_t.weight,2)
+        #
+        # distance = math.sqrt(temp_distance)
+        #
+        # return distance
+
+    def create_dict_term_by_id (cls, filter_tweet):
+        dict_t = {}
+        for term in filter_tweet:
+            dict_t[term.id] = term.weight
+
+        return dict_t
+#======================== END Clustering =============================
+
+#======================== Classificatioon ============================
     def naive_bayes_make_classification_model(cls, lot,train_token):
         loc = cls.initialization_classification_model(lot)
         list_of_classification = copy.deepcopy(cls.naive_bayes_normalization(cls.naive_bayes_weight(cls.naive_bayes_complement(loc=loc,list_of_train_tokens=train_token))))
         return list_of_classification
 
-    def naive_bayes_determine_classification(cls,lot,loc):
+    def naive_bayes_determine_classification (cls,lot,loc):
         list_of_test_tweet = copy.deepcopy(lot)
         for tweet in list_of_test_tweet:
             total_prob = {"positif": 0, "negatif": 0, "netral": 0}
@@ -258,6 +330,8 @@ class TextAnalyze(object):
         else:
             obj_cls.prob_net += tfidf_value
 
+#============================= END Classification =============================
+#============================= Performance Evaluation =========================
     def group_term_by_sentiment(cls):
         pass
 
@@ -483,8 +557,8 @@ class TextAnalyze(object):
             else:
                 cls.list_of_train_tweet_net.append(tweet)
 
+# ============================= END Performance Evaluation =========================
     #--------------------------- ekstraksi fitur ------------------------------------------
-    #def initialize_term(cls):
 
     def initialize_train_tokens(cls,lot,base_selection = 0):
         """
@@ -574,21 +648,6 @@ class TextAnalyze(object):
             for tweet in lot:
                 tweet.filter_tweet = cls.feature_selection(tweet.filter_tweet, list_of_tokens)
         cls.calculate_idf(list_of_tokens,lot)
-        # for tweet in cls.list_of_train_tweet:
-        #     tfidf = []
-        #     temp_tfidf = []
-        #     for token in cls.list_of_train_tokens:
-        #         temp_term = Term()
-        #         if len(tweet.filter_tweet) > 0 :
-        #             tf = cls.calculate_tf(token['name'], tweet.filter_tweet)
-        #             #tfidf.append({token : float(tf * idf[token])})
-        #             temp_term.name = token
-        #             temp_term.weight = float(tf * token['idf'])
-        #             if temp_term.weight > 0:
-        #                 temp_term.id = token['id']
-        #                 tfidf.append(temp_term)
-        #     temp_tfidf.extend(tfidf)
-        #     tweet.filter_tweet = list(temp_tfidf)
         for tweet in lot:
             for term in tweet.filter_tweet:
                 tf = cls.calculate_tf(token=term.name, filterTweet=tweet.filter_tweet,isTrain=True)

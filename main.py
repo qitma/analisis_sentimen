@@ -1,4 +1,6 @@
 from textanalyze.text_analyze import *
+from term import Term
+import timeit
 
 filecsv = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\anies_json_7_sd_13_2_2017_tweets.csv"
 filecsvanislatih = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\Data_latih_anies_sandiaga.csv"
@@ -16,12 +18,12 @@ sw=open(fileStopWord,encoding='utf-8', mode='r');stop=sw.readlines();sw.close()
 stop=[kata.strip() for kata in stop];stop=set(stop)
 stop=stop.union(specialStopWords)
 textAnalyze = TextAnalyze()
-textAnalyze.import_file_train_to_object(fileName=uji_coba2)
-textAnalyze.preprocessing(fileEmoticon=fileEmoticon,negationWord=negation_word,stopWord=stop,listOfTweet=textAnalyze.list_of_train_tweet)
-textAnalyze.initialize_profil_trait(fileName=fileProfilTrait,list_tr1=specialProfilTR1)
-textAnalyze.group_by_sentiment(textAnalyze.list_of_train_tweet)
-list_of_train_tokens = textAnalyze.initialize_train_tokens(textAnalyze.list_of_train_tweet)
-textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=5,averaging="macro",multi_label=True)
+# textAnalyze.import_file_train_to_object(fileName=filecsvtrain)
+# textAnalyze.preprocessing(fileEmoticon=fileEmoticon,negationWord=negation_word,stopWord=stop,listOfTweet=textAnalyze.list_of_train_tweet)
+# textAnalyze.initialize_profil_trait(fileName=fileProfilTrait,list_tr1=specialProfilTR1)
+# textAnalyze.group_by_sentiment(textAnalyze.list_of_train_tweet)
+# list_of_train_tokens = textAnalyze.initialize_train_tokens(textAnalyze.list_of_train_tweet)
+#textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=5,averaging="macro",multi_label=True)
 #textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=5,averaging="macro",multi_label=False)
 #textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=8,averaging="micro",multi_label=True)
 #textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=8,averaging="micro",multi_label=False)
@@ -39,6 +41,21 @@ textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=5,averagin
 # textAnalyze.print_test_tweet(test_result)
 # print(table)
 #-------------end test data -------------------
+
+#------------- Clustering ---------------------
+tic=timeit.default_timer()
+textAnalyze.import_file_train_to_object(fileName=uji_coba2)
+textAnalyze.preprocessing(fileEmoticon=fileEmoticon,negationWord=negation_word,stopWord=stop,listOfTweet=textAnalyze.list_of_train_tweet)
+textAnalyze.initialize_profil_trait(fileName=fileProfilTrait,list_tr1=specialProfilTR1)
+textAnalyze.group_by_sentiment(textAnalyze.list_of_train_tweet)
+list_of_train_tokens = textAnalyze.initialize_train_tokens(textAnalyze.list_of_train_tweet)
+textAnalyze.feature_extraction(list_of_tokens=list_of_train_tokens,lot=textAnalyze.list_of_train_tweet)
+textAnalyze.grouping_profil(textAnalyze.list_of_train_tweet)
+list_of_cluster = textAnalyze.clustering_k_means(textAnalyze.list_of_train_tweet,cluster_K=6)
+textAnalyze.print_cluster(loc=list_of_cluster)
+toc=timeit.default_timer()
+print(toc - tic)
+#------------- end Clustering -----------------
 #textAnalyze.print_test_tweet(test_result)
 
 #textAnalyze.print_tweet()
