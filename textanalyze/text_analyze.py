@@ -1,4 +1,5 @@
 import csv , sys , re , string , enum , math , copy
+import json
 from nltk import word_tokenize
 from prettytable import PrettyTable
 #from itertools import count
@@ -19,17 +20,83 @@ class TextAnalyze(object):
         cls.list_of_train_tweet = []
         cls.list_of_test_tweet = []
         cls.list_of_emoticon = []
-        cls.list_of_positive_word = []
-        cls.list_of_negative_word = []
+        # cls.list_of_positive_word = []
+        # cls.list_of_negative_word = []
+        cls.list_of_data_pool = []
+        cls.list_of_gold_tweet = []
         cls.list_of_train_tokens = []
         cls.list_of_profile_trait = []
         cls.list_of_classification = []
         cls.list_of_train_tweet_pos = []
         cls.list_of_train_tweet_neg = []
         cls.list_of_train_tweet_net = []
-        cls.list_of_cluster_tweet = []
+        #cls.list_of_cluster_tweet = []
 
-    def import_file_train_to_object(cls, fileName):
+    def toJSON(self,filename):
+        return json.dump(self,filename, default=lambda o: o.__dict__,
+            sort_keys=True, indent=4)
+
+    def import_json_to_object(cls,file):
+        with open(file) as data_file:
+            data = json.load(data_file)
+
+        for data_cls in data['list_of_classification']:
+            temp_cls = Classification(
+                name=data_cls['term_name'],
+                id=data_cls['term_id'],
+                prob_pos=data_cls['prob_pos'],
+                prob_neg=data_cls['prob_neg'],
+                prob_net=data_cls['prob_net']
+            )
+            cls.list_of_classification.append(temp_cls)
+
+        for data_emot in data['list_of_emoticon']:
+            cls.list_of_emoticon.append(data_emot)
+
+        for jtweet in data['list_of_test_tweet']:
+            list_of_filter = cls.json_to_term_object(jtweet['filter_tweet'])
+            temp_test = TestTweet(
+                id_str=jtweet['id_str'],
+                profil=jtweet['profil'],
+                tweet=jtweet['tweet'],
+                sentiment=jtweet['actual_sentiment'],
+                created_date=jtweet['created_date'],
+                filter_tweet=copy.deepcopy(list_of_filter),
+                test_id=jtweet['test_id'],
+                pred_sentiment=jtweet['predicted_sentiment']
+            )
+            cls.list_of_test_tweet.append(temp_test)
+
+        for jtweet in data['list_of_train_tweet']:
+            list_of_filter = cls.json_to_term_object(jtweet['filter_tweet'])
+            temp_train = TrainTweet(
+                id_str=jtweet['id_str'],
+                profil=jtweet['profil'],
+                tweet=jtweet['tweet'],
+                sentiment=jtweet['actual_sentiment'],
+                created_date=jtweet['created_date'],
+                filter_tweet=copy.deepcopy(list_of_filter),
+                train_id=jtweet['train_id'],
+                status_train=jtweet['status_train']
+
+            )
+            cls.list_of_train_tweet.append(temp_train)
+
+        cls.list_of_train_tokens = copy.deepcopy(data['list_of_train_tokens'])
+        cls.list_of_profile_trait = copy.deepcopy(data['list_of_profile_trait'])
+
+
+
+    def json_to_term_object(cls, jterm):
+        list_of_filter = []
+        for term in jterm:
+            temp_term = Term(name=term['name'],id=term['id'],weight=term['weight'],profil=term['profil'])
+            list_of_filter.append(temp_term)
+
+        return list_of_filter
+
+
+    def import_file_train_to_object(cls, fileName,lot,is_data_pool=False):
         train_id = 1
         with open(fileName) as csvfile:
             reader = csv.DictReader(csvfile)
@@ -41,9 +108,12 @@ class TextAnalyze(object):
                     obj_train_tweet.created_date = row['created_at']
                     obj_train_tweet.tweet = row['tweet'].strip('\n')
                     obj_train_tweet.filter_tweet=""
+                    #cls.list_of_data_pool.append(obj_train_tweet)
                     obj_train_tweet.actual_sentiment = row['label']
-                    cls.list_of_train_tweet.append(obj_train_tweet)
+                    #cls.list_of_train_tweet.append(obj_train_tweet)
+                    lot.append(obj_train_tweet)
                     train_id+=1
+                return lot
             except csv.Error as e:
                 sys.exit('file {}, line {}: {}'.format(fileName, reader.line_num, e))
 
@@ -113,7 +183,47 @@ class TextAnalyze(object):
             print("Please make data train first")
 
         return None
+#======================== Active Learning ============================
+
+    def initial_data_train_and_data_pool(cls, data_pool, initial_ratio = 10):
+        cls.group_by_sentiment(copy.deepcopy(data_pool))
+        lot = []
+        for i in range(initial_ratio):
+            tweet_pos = [tweet for idx, tweet in enumerate(cls.list_of_train_tweet_pos) if idx % initial_ratio == i]
+            tweet_neg = [tweet for idx, tweet in enumerate(cls.list_of_train_tweet_neg) if idx % initial_ratio == i]
+            tweet_net = [tweet for idx, tweet in enumerate(cls.list_of_train_tweet_net) if idx % initial_ratio == i]
+            lot.extend(tweet_pos)
+            lot.extend(tweet_neg)
+            lot.extend(tweet_net)
+            data_pool = [tweet for idx, tweet in enumerate(data_pool) if tweet not in lot]
+        lod = copy.deepcopy(data_pool)
+        for tweet in lod:
+            tweet.actual_sentiment = ""
+
+        return lod,lot
+
+    def active_learning(cls,data_pool,data_train,max_query = 5,query_method = "entropy"):
+        lot = copy.deepcopy(data_train)
+        lod = copy.deepcopy(data_pool)
+        for i in range(max_query):
+            list_of_train_tokens = cls.initialize_train_tokens(lot)
+            cls.feature_extraction(lot, list_of_train_tokens)
+            cls.grouping_profil(lot)
+            model_classification = cls.naive_bayes_make_classification_model(lot=lot,train_token=list_of_train_tokens)
+
+
+#======================== End Active Learning ========================
 #======================== Clustering =================================
+    # def set_min_distance_centroid_to_centroid(cls,lis_of_cluster,cluster_K):
+    #     loc = copy.deepcopy(lis_of_cluster)
+    #     list_tweet_by_cluster = []
+    #     for i in range(cluster_K):
+    #         for tc in loc:
+    #             if tc.cluster == "group"+str(i+1):
+    #                 list_tweet_by_cluster.append(tc)
+    #
+
+
     def clustering_k_means (cls,list_of_tweet,cluster_K = 3, is_random = True):
         list_of_centroid = []
         list_of_clustering = []
@@ -135,24 +245,25 @@ class TextAnalyze(object):
         iteration = 0
         while(not convergen):
             count = 0
-            t = PrettyTable(['Train ID',"Distance",'Group'])
+            #t = PrettyTable(['Train ID',"Distance","Distance to Group",'Group'])
             for tw_clus in list_of_clustering:
                 distance = {}
                 for centroid in list_of_centroid:
-                    distance[centroid['group_name']] = cls.euclidean_distance(tw_clus.tweet.filter_tweet,centroid['centroid'].filter_tweet)
+                    distance[centroid['group_name']] = cls.euclidean_distance(tw_clus.tweet,centroid['centroid'])
                 tw_clus.distance = distance
                 temp_cluster = copy.deepcopy(tw_clus.cluster)
                 tw_clus.cluster = min(tw_clus.distance, key=tw_clus.distance.get)
-                t.add_row([tw_clus.cluster_id,tw_clus.distance,tw_clus.cluster])
+                tw_clus.distance_to_current_cluster = min(tw_clus.distance.values())
+                #t.add_row([tw_clus.cluster_id,tw_clus.distance,tw_clus.distance_to_current_cluster,tw_clus.cluster])
                 if temp_cluster == tw_clus.cluster:
                     count +=1
-            print(t)
+            #print(t)
             if count == len(list_of_clustering) or iteration > max_iteration :
                 convergen = True
             list_of_centroid = copy.deepcopy(cls.generate_new_centroid(cluster_K=cluster_K,list_of_clustering=list_of_clustering))
             iteration +=1
-            cls.print_cluster(list_of_clustering)
-        print("iterasi:{}".format(str(iteration)))
+            #cls.print_cluster(list_of_clustering)
+        #print("iterasi:{}".format(str(iteration)))
         return list_of_clustering
 
     def generate_new_centroid (cls,cluster_K,list_of_clustering):
@@ -163,7 +274,7 @@ class TextAnalyze(object):
             denominator = 0
             for tw_c in loc:
                 if tw_c.cluster == 'group'+str(i+1):
-                    dict_c = Counter(cls.create_dict_term_by_id(tw_c.tweet.filter_tweet))
+                    dict_c = Counter(cls.create_dict_term_by_id(tw_c.tweet))
                     temp_dict = temp_dict + dict_c
                     denominator += 1
             filter_tw = [Term(id=key,weight=float(temp_dict[key]/denominator)) for key in temp_dict]
@@ -171,7 +282,6 @@ class TextAnalyze(object):
             list_of_centroid.append(cluster)
 
         return list_of_centroid
-
 
     def euclidean_distance (cls, tweet, centroid):
         """
@@ -201,15 +311,26 @@ class TextAnalyze(object):
         #
         # return distance
 
-    def create_dict_term_by_id (cls, filter_tweet):
+    def create_dict_term_by_id (cls, tweet):
         dict_t = {}
-        for term in filter_tweet:
-            dict_t[term.id] = term.weight
-
+        test_dict ={}
+        for term in tweet.filter_tweet:
+            dict_t[str(term.id)] = term.weight
+            dict_t[term.id,"_profil"] = cls.convert_profil_to_int(term.profil)
+        dict_t['tweet_profile'] = cls.convert_profil_to_int(tweet.profil)
         return dict_t
+
+    def convert_profil_to_int(cls,profil):
+        for i in range(1,8):
+            if profil is not None:
+                if profil == "TR"+str(i):
+                    return i
+            else:
+                return 0
 #======================== END Clustering =============================
 
 #======================== Classificatioon ============================
+
     def naive_bayes_make_classification_model(cls, lot,train_token):
         loc = cls.initialization_classification_model(lot)
         list_of_classification = copy.deepcopy(cls.naive_bayes_normalization(cls.naive_bayes_weight(cls.naive_bayes_complement(loc=loc,list_of_train_tokens=train_token))))
@@ -584,7 +705,6 @@ class TextAnalyze(object):
                 index+=1
         print('initialize tokens done..')
         return list_of_train_tokens
-
 
     def initialize_profil_trait(cls, fileName = None, list_tr1=[], list_tr2 = [], list_tr3 = [], list_tr4 = [], list_tr5 = [], list_tr6 = [], list_tr7 = []):
         with open(fileName,'r') as csvfile:

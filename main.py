@@ -1,7 +1,8 @@
 from textanalyze.text_analyze import *
+import copy
 from term import Term
 import timeit
-
+import json
 filecsv = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\anies_json_7_sd_13_2_2017_tweets.csv"
 filecsvanislatih = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\Data_latih_anies_sandiaga.csv"
 filecsvanisuji = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\Data_uji_anies_sandiaga.csv"
@@ -44,17 +45,26 @@ textAnalyze = TextAnalyze()
 
 #------------- Clustering ---------------------
 tic=timeit.default_timer()
-textAnalyze.import_file_train_to_object(fileName=uji_coba2)
-textAnalyze.preprocessing(fileEmoticon=fileEmoticon,negationWord=negation_word,stopWord=stop,listOfTweet=textAnalyze.list_of_train_tweet)
-textAnalyze.initialize_profil_trait(fileName=fileProfilTrait,list_tr1=specialProfilTR1)
-textAnalyze.group_by_sentiment(textAnalyze.list_of_train_tweet)
+# textAnalyze.import_file_train_to_object(fileName=uji_coba2)
+# textAnalyze.preprocessing(fileEmoticon=fileEmoticon,negationWord=negation_word,stopWord=stop,listOfTweet=textAnalyze.list_of_train_tweet)
+# textAnalyze.initialize_profil_trait(fileName=fileProfilTrait,list_tr1=specialProfilTR1)
+# textAnalyze.group_by_sentiment(textAnalyze.list_of_train_tweet)
+# toc=timeit.default_timer()
+# print("time for preprocessing:{}".format(toc - tic))
+# namafile="ujicoba"
+# file = open('dataset/'+namafile+'.json', 'w')
+# textAnalyze.toJSON(filename=file)
+# print("Data latih sudah dirubah ke json")
+tic2 = timeit.default_timer()
+textAnalyze.list_of_train_tweet = copy.deepcopy(textAnalyze.import_json_to_object('dataset/ujicoba.json'))
 list_of_train_tokens = textAnalyze.initialize_train_tokens(textAnalyze.list_of_train_tweet)
 textAnalyze.feature_extraction(list_of_tokens=list_of_train_tokens,lot=textAnalyze.list_of_train_tweet)
 textAnalyze.grouping_profil(textAnalyze.list_of_train_tweet)
 list_of_cluster = textAnalyze.clustering_k_means(textAnalyze.list_of_train_tweet,cluster_K=6)
 textAnalyze.print_cluster(loc=list_of_cluster)
-toc=timeit.default_timer()
-print(toc - tic)
+toc2=timeit.default_timer()
+print("time for clustering:{}".format(toc2 - tic2))
+print("time for All proses:{}".format(toc2 - tic))
 #------------- end Clustering -----------------
 #textAnalyze.print_test_tweet(test_result)
 
