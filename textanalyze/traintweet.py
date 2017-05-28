@@ -13,3 +13,4 @@ class TrainTweet(Tweet):
         cls.train_id = train_id
         super().__init__(id_str,created_date,tweet,filter_tweet,profil,sentiment)
         cls.status_train = status_train
+        #asd
