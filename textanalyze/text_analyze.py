@@ -2,11 +2,14 @@ import csv , sys , re , string , enum , math , copy
 import json
 from nltk import word_tokenize
 from prettytable import PrettyTable
+import timeit
 #from itertools import count
 import random
 from collections import Counter
 #from nltk.tokenize import RegexpTokenizer
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+from itertools import groupby
+from collections import defaultdict
 
 from tweet import Tweet
 from traintweet import TrainTweet
@@ -32,9 +35,9 @@ class TextAnalyze(object):
         cls.list_of_train_tweet_net = []
         #cls.list_of_cluster_tweet = []
 
-    def toJSON(self,filename):
-        return json.dump(self,filename, default=lambda o: o.__dict__,
-            sort_keys=True, indent=4)
+    def toJSON(self, objFile):
+        return json.dump(self, objFile, default=lambda o: o.__dict__,
+                         sort_keys=True, indent=4)
 
     def import_json_to_object(cls,file):
         with open(file) as data_file:
@@ -96,7 +99,8 @@ class TextAnalyze(object):
         return list_of_filter
 
 
-    def import_file_train_to_object(cls, fileName,lot,is_data_pool=False):
+    def import_file_train_to_object(cls, fileName,is_data_pool=False):
+        lot = []
         train_id = 1
         with open(fileName) as csvfile:
             reader = csv.DictReader(csvfile)
@@ -158,16 +162,26 @@ class TextAnalyze(object):
         for term in loc:
             print("term:{}, prob_pos:{}, prob_neg:{}, prob_net:{}".format(term.term_name,term.prob_pos,term.prob_neg,term.prob_net))
 
-    def print_cluster(cls,loc):
+    def print_cluster(cls,loc,is_train=True):
         t = PrettyTable(['Train ID', 'Group'])
         for tweet in loc:
-            t.add_row([tweet.cluster_id,tweet.cluster])
+            if is_train:
+                t.add_row([tweet.train_id,tweet.cluster.cluster_name])
+            else:
+                t.add_row([tweet.test_id, tweet.cluster.cluster_name])
         print(t)
+
+    def print_centroid(cls,list_of_centroid):
+        for centroid in list_of_centroid:
+            print("group name :{}".format(centroid['group_name']))
+            for term in centroid['centroid'].filter_tweet:
+                print("term:{},weight:{}".format(term.id,term.weight))
+        print("======================================================================")
 
     def train_data(cls):
         pass
 
-    def test_data(cls,train_token,fileTest,fileEmoticon , negationWord, stopWord):
+    def test_data(cls,train_token,fileTest,fileEmoticon , negationWord, stopWord,train_tweet):
         if len(cls.list_of_train_tweet) >  0:
             list_of_test_tweet = cls.import_file_test_to_object(fileName=fileTest)
             cls.preprocessing(fileEmoticon=fileEmoticon,negationWord=negationWord,stopWord=stopWord,listOfTweet=list_of_test_tweet)
@@ -175,7 +189,8 @@ class TextAnalyze(object):
                 for term in tweet.filter_tweet:
                     term.weight =cls.calculate_tf(token=term.name, filterTweet=tweet.filter_tweet, isTrain=False)
             cls.grouping_profil(lot=list_of_test_tweet)
-            model_classification = cls.naive_bayes_make_classification_model(lot=cls.list_of_train_tweet,train_token = train_token)
+            #cls.print_train_tweet(train_tweet)
+            model_classification = cls.naive_bayes_make_classification_model(lot=train_tweet,train_token = train_token)
             test_result = cls.naive_bayes_determine_classification(lot=list_of_test_tweet,loc=model_classification)
 
             return test_result
@@ -183,34 +198,214 @@ class TextAnalyze(object):
             print("Please make data train first")
 
         return None
+
+    def calculate_profil(cls,lot):
+        list_of_tweet = copy.deepcopy(lot)
+        profil = {}
+        for i in range(1,8):
+            count_pos = 0
+            count_neg = 0
+            count_net = 0
+            for tweet in list_of_tweet:
+                if tweet.profil is not None:
+                    if tweet.profil.lower() == "tr"+str(i):
+                        if tweet.predicted_sentiment.lower() == "positif":
+                            count_pos+=1
+                        elif tweet.predicted_sentiment.lower() == "negatif":
+                            count_neg+=1
+                        else:
+                            count_net+=1
+            profil['TR'+str(i)] = [count_pos,count_neg,count_net]
+
+        return profil
+
 #======================== Active Learning ============================
 
     def initial_data_train_and_data_pool(cls, data_pool, initial_ratio = 10):
-        cls.group_by_sentiment(copy.deepcopy(data_pool))
+        """
+        :param data_pool: data pool yang sudah melalui tahap preprocessing dan dengan asumsi data pool sudah
+                            diberi label semua <untuk kepentingan eksperimen>
+        :param initial_ratio:  ratio yang ingin dijadikan data latih awal untuk membentuk model di active learning
+                                dalam satuan (%)
+        :return:
+        """
+        #cls.print_train_tweet(data_pool)
+        lotpos,lotneg,lotnet = cls.group_by_sentiment(copy.deepcopy(data_pool))
+        jml_data_pos = int(math.ceil((len(lotpos)*initial_ratio)/100))
+        jml_data_neg = int(math.ceil((len(lotneg)*initial_ratio)/100))
+        jml_data_net = int(math.ceil((len(lotnet)*initial_ratio)/100))
+        random.shuffle(lotpos)
+        random.shuffle(lotneg)
+        random.shuffle(lotnet)
         lot = []
-        for i in range(initial_ratio):
-            tweet_pos = [tweet for idx, tweet in enumerate(cls.list_of_train_tweet_pos) if idx % initial_ratio == i]
-            tweet_neg = [tweet for idx, tweet in enumerate(cls.list_of_train_tweet_neg) if idx % initial_ratio == i]
-            tweet_net = [tweet for idx, tweet in enumerate(cls.list_of_train_tweet_net) if idx % initial_ratio == i]
-            lot.extend(tweet_pos)
-            lot.extend(tweet_neg)
-            lot.extend(tweet_net)
-            data_pool = [tweet for idx, tweet in enumerate(data_pool) if tweet not in lot]
+        lot.extend(copy.deepcopy(lotpos[:jml_data_pos]))
+        lot.extend(copy.deepcopy(lotneg[:jml_data_neg]))
+        lot.extend(copy.deepcopy(lotnet[:jml_data_net]))
+        data_pool = [tweet for tweet in data_pool if tweet not in lot]
         lod = copy.deepcopy(data_pool)
         for tweet in lod:
-            tweet.actual_sentiment = ""
-
+            tweet.actual_sentiment = None
+        #print("lot:{}".format(len(lot)))
         return lod,lot
 
-    def active_learning(cls,data_pool,data_train,max_query = 5,query_method = "entropy"):
+    def active_learning(cls,data_pool,data_train,max_query = 5,query_method = "entropy",query_count = 50,cluster_k = 50,is_interactive=True,data_gold=None,K_fold = 3):
         lot = copy.deepcopy(data_train)
         lod = copy.deepcopy(data_pool)
-        for i in range(max_query):
+        #print(len(lot))
+        #print(len(lod))
+        cluster_lod = cls.clustering_k_means(list_of_tweet=lod,cluster_K=cluster_k,)
+        trans_cluster = cls.transform_cluster(cluster_lod)
+        not_stop = True
+        max_q = 0
+        iterasi = 0
+        list_of_train_tokens = cls.initialize_train_tokens(lot)
+        cls.feature_extraction(lot, list_of_train_tokens)
+        cls.grouping_profil(lot)
+        model_classification = cls.naive_bayes_make_classification_model(lot=lot, train_token=list_of_train_tokens)
+        #cls.print_cls(model_classification)
+        while(not_stop):
+            print("---------iterasi {}---------".format(str(iterasi)))
+            #cls.print_train_tweet(lot)
+            # tic = timeit.default_timer()
+            # cls.k_fold_cross_validation(lot=lot,K=K_fold,averaging="macro")
+            # toc = timeit.default_timer()
+            # print("time for CV:{}".format(toc - tic))
+            list_of_query = []
+            #print(len(list_of_train_tokens))
+            count = 0
+            while(count<query_count):
+                for key,group in trans_cluster.items():
+                    if len(group) > 0:
+                        selected_tweet = cls.uncertain_entropy(lot=group,model_classification=model_classification)
+                        list_of_query.append(selected_tweet)
+                        group.remove(selected_tweet)
+                        count+=1
+            max_q += 1
+            if is_interactive:
+                lot.extend(cls.interactive_label(list_of_query))
+            else:
+                if data_gold is not None:
+                    lot.extend(cls.gold_label(list_of_query,data_gold))
+                else:
+                    print("data gold is None")
+                    lot.extend(cls.interactive_label(list_of_query))
             list_of_train_tokens = cls.initialize_train_tokens(lot)
             cls.feature_extraction(lot, list_of_train_tokens)
             cls.grouping_profil(lot)
-            model_classification = cls.naive_bayes_make_classification_model(lot=lot,train_token=list_of_train_tokens)
+            model_classification = cls.naive_bayes_make_classification_model(lot=lot, train_token=list_of_train_tokens)
+            count_data_pool = sum(len(val) for key, val in trans_cluster.items())
+            print("Data train already :{}".format(len(lot)))
+            print("Res Data pool :{}".format(count_data_pool))
+            print("Rest Max Query :{}".format(max_query-max_q))
+            is_stop = cls.stop_acl()
+            if count_data_pool < query_count:
+                query_count = count_data_pool
+            iterasi+=1
+            if is_stop or count_data_pool == 0 or max_q >= max_query:
+                not_stop = False
 
+    def stop_acl(cls):
+        print("Do you want to stop Active Learning ? [Y/N]")
+        output = input()
+        if output.lower() == 'y':
+            return True
+        else:
+            return False
+
+    def gold_label(cls,list_of_query,gold_label):
+        loq = copy.deepcopy(list_of_query)
+        for tweet in loq:
+            for tweet_g in gold_label:
+                if tweet.train_id == tweet_g.train_id:
+                    tweet.actual_sentiment = copy.deepcopy(tweet_g.actual_sentiment)
+
+        return loq
+
+    def interactive_label(cls, list_of_query):
+        loq = copy.deepcopy(list_of_query)
+        print("Please Determine Label with Pos/Neg/Net depending on sentiment!!")
+        for tweet in loq:
+            print("id_str:{} - Tweet:{}".format(tweet.id_str,tweet.tweet))
+            print("Determine Label : [Pos/Neg/Net]")
+            while(True):
+                label = input()
+                if label.lower() == "pos" or label.lower() =="positif":
+                    tweet.actual_sentiment = 'positif'
+                    break
+                elif label.lower() =='neg' or label.lower() == 'negatif':
+                    tweet.actual_sentiment = "negatif"
+                    break
+                elif label.lower() =='net' or label.lower() == 'netral':
+                    tweet.actual_sentiment = "netral"
+                    break
+                else:
+                    print("please input label with [Pos/Neg/Net]!!")
+        return loq
+
+
+    def transform_cluster(cls,list_of_cluster):
+        """
+        :param list_of_cluster: cluster hasil k-means
+        :return: berupa dictionary 'nama_group':list of tweet
+        catatan ketika di output jgn lupa gunakan .items() agar dict jdi iterator
+        ex: cluster_group.items()
+        """
+        cluster = {}
+        for tweet in list_of_cluster:
+            cluster[tweet.cluster.cluster_name] = []
+
+        for tweet in list_of_cluster:
+            cluster[tweet.cluster.cluster_name].append(tweet)
+
+        return cluster
+
+
+    def uncertain_entropy(cls,lot,model_classification):
+        list_of_tweet = copy.deepcopy(lot)
+        dict_prob = {}
+        for tweet in list_of_tweet:
+            total_prob = {"positif": 0, "negatif": 0, "netral": 0}
+            #print("train_id:{},tweet:{}".format(tweet.train_id, tweet.tweet))
+            for term in tweet.filter_tweet:
+                term.weight = cls.calculate_tf(token=term.name, filterTweet=tweet.filter_tweet, isTrain=False)
+                #print("term:{},weight:{}".format(term.name,term.weight))
+                # term.weight = float(
+                #     sum(1 for token in tweet.filter_tweet if token.name == term.name) / len(tweet.filter_tweet))
+                for mc in model_classification:
+                    # print("lolol")
+                    # print("cmp prob pos:{},cmp prob neg:{}, cmp prob net:{}".format(mc.prob_pos, mc.prob_neg,
+                    #                                                                 mc.prob_net))
+                    if term.name == mc.term_name:
+                        #print("masuk if")
+                        total_prob['positif'] = total_prob['positif'] + (mc.prob_pos * term.weight)
+                        total_prob['negatif'] = total_prob['negatif'] + (mc.prob_neg * term.weight)
+                        total_prob['netral'] = total_prob['netral'] + (mc.prob_net * term.weight)
+            #print("prob_pos :{},prob_neg:{},prob_net:{}".format(total_prob['positif'], total_prob['negatif'], total_prob['netral']))
+
+            #print(total_prob)
+            norm_prob = cls.min_max_normalization(total_prob)
+            log_prob = {key:math.log(value+1,10) for key,value in norm_prob.items()}
+            ent_prob = {key:value * log_prob[key] for key,value in norm_prob.items()}
+            sum_prob = -sum(ent_prob.values())
+            dict_prob[sum_prob] = tweet
+            #print(dict_prob)
+        #print(len(dict_prob))
+        # for key,tweet in dict_prob.items():
+        #     print(key)
+        #     print("train_id:{},tweet:{}".format(tweet.train_id,tweet.tweet))
+        entp_tw = max(dict_prob.keys())
+        return dict_prob[entp_tw]
+
+    def min_max_normalization(cls,dict_prob):
+        #print(dict_prob)
+        dop = copy.deepcopy(dict_prob)
+        max_val = max(dop.values())
+        min_val = min(dop.values())
+        if max_val == 0 and min_val == 0:
+            dop = {key: 0 for key, value in dop.items()}
+        else:
+            dop = {key: float((value - min_val) / (max_val - min_val)) for key, value in dop.items()}
+        return dop
 
 #======================== End Active Learning ========================
 #======================== Clustering =================================
@@ -223,48 +418,49 @@ class TextAnalyze(object):
     #                 list_tweet_by_cluster.append(tc)
     #
 
-
     def clustering_k_means (cls,list_of_tweet,cluster_K = 3, is_random = True):
         list_of_centroid = []
-        list_of_clustering = []
         lot = copy.deepcopy(list_of_tweet)
         centroid_candidate = copy.deepcopy(list_of_tweet)
         for i in range(cluster_K):
             idx = random.randint(0,len(centroid_candidate)-1)
             #cluster = {}
             cluster = {'group_name':'group'+str(i+1),'centroid':centroid_candidate[idx]}
+            dict_cluster = {'group'+str(i+1):[]}
             list_of_centroid.append(cluster)
             centroid_candidate.pop(idx)
 
         for tweet in lot:
-            temp_cluster = Clustering(cluster_id=tweet.train_id,tweet=tweet)
-            list_of_clustering.append(temp_cluster)
+            tweet.cluster = Clustering()
 
         convergen = False
-        max_iteration = 20
+        max_iteration = 1000
         iteration = 0
         while(not convergen):
+            #cls.print_centroid(list_of_centroid)
             count = 0
-            #t = PrettyTable(['Train ID',"Distance","Distance to Group",'Group'])
-            for tw_clus in list_of_clustering:
+            # t = PrettyTable(['Train ID',"Distance","Distance to Group",'Group'])
+            # for tw_clus in lot:
+            #     t.add_row([tw_clus.train_id, tw_clus.cluster.distance, tw_clus.cluster.distance_to_current_cluster,
+            #            tw_clus.cluster.cluster_name])
+            # print(t)
+            for tw_clus in lot:
                 distance = {}
                 for centroid in list_of_centroid:
-                    distance[centroid['group_name']] = cls.euclidean_distance(tw_clus.tweet,centroid['centroid'])
-                tw_clus.distance = distance
-                temp_cluster = copy.deepcopy(tw_clus.cluster)
-                tw_clus.cluster = min(tw_clus.distance, key=tw_clus.distance.get)
-                tw_clus.distance_to_current_cluster = min(tw_clus.distance.values())
-                #t.add_row([tw_clus.cluster_id,tw_clus.distance,tw_clus.distance_to_current_cluster,tw_clus.cluster])
-                if temp_cluster == tw_clus.cluster:
+                    distance[centroid['group_name']] = cls.euclidean_distance(tw_clus,centroid['centroid'])
+                tw_clus.cluster.distance = distance
+                temp_cluster = copy.deepcopy(tw_clus.cluster.cluster_name)
+                tw_clus.cluster.cluster_name = min(tw_clus.cluster.distance, key=tw_clus.cluster.distance.get)
+                tw_clus.cluster.distance_to_current_cluster = min(tw_clus.cluster.distance.values())
+                if temp_cluster == tw_clus.cluster.cluster_name:
                     count +=1
-            #print(t)
-            if count == len(list_of_clustering) or iteration > max_iteration :
+            if count == len(lot) or iteration > max_iteration :
                 convergen = True
-            list_of_centroid = copy.deepcopy(cls.generate_new_centroid(cluster_K=cluster_K,list_of_clustering=list_of_clustering))
+            list_of_centroid = copy.deepcopy(cls.generate_new_centroid(cluster_K=cluster_K,list_of_clustering=lot))
             iteration +=1
             #cls.print_cluster(list_of_clustering)
         #print("iterasi:{}".format(str(iteration)))
-        return list_of_clustering
+        return lot
 
     def generate_new_centroid (cls,cluster_K,list_of_clustering):
         loc = copy.deepcopy(list_of_clustering)
@@ -273,8 +469,8 @@ class TextAnalyze(object):
             temp_dict = Counter({})
             denominator = 0
             for tw_c in loc:
-                if tw_c.cluster == 'group'+str(i+1):
-                    dict_c = Counter(cls.create_dict_term_by_id(tw_c.tweet))
+                if tw_c.cluster.cluster_name == 'group'+str(i+1):
+                    dict_c = Counter(cls.create_dict_term_by_id(tw_c))
                     temp_dict = temp_dict + dict_c
                     denominator += 1
             filter_tw = [Term(id=key,weight=float(temp_dict[key]/denominator)) for key in temp_dict]
@@ -316,9 +512,11 @@ class TextAnalyze(object):
         test_dict ={}
         for term in tweet.filter_tweet:
             dict_t[str(term.id)] = term.weight
-            dict_t[term.id,"_profil"] = cls.convert_profil_to_int(term.profil)
+            dict_t[str(term.id)+"_profil"] = cls.convert_profil_to_int(term.profil)
         dict_t['tweet_profile'] = cls.convert_profil_to_int(tweet.profil)
         return dict_t
+#===============END Clustering ===============================
+#===============Classification ===============================
 
     def convert_profil_to_int(cls,profil):
         for i in range(1,8):
@@ -352,7 +550,7 @@ class TextAnalyze(object):
                         total_prob['positif'] = total_prob['positif']+(model_classification.prob_pos * term.weight)
                         total_prob['negatif'] =  total_prob['negatif']+ (model_classification.prob_neg * term.weight)
                         total_prob['netral'] = total_prob['netral']+(model_classification.prob_net * term.weight)
-            # print("prob_pos :{},prob_neg:{},prob_net:{}".format(total_prob['positif'], total_prob['negatif'], total_prob['netral']))
+            #print("prob_pos :{},prob_neg:{},prob_net:{}".format(total_prob['positif'], total_prob['negatif'], total_prob['netral']))
 
             tweet.predicted_sentiment = min(total_prob, key=lambda key: total_prob[key])
         return list_of_test_tweet
@@ -456,26 +654,30 @@ class TextAnalyze(object):
     def group_term_by_sentiment(cls):
         pass
 
-    def k_fold_cross_validation(cls,lot,K=3,averaging='macro',multi_label = False):
+    def k_fold_cross_validation(cls,lot,K=3,averaging='macro'):
         """
         :param lot: tweet data latih 
         :param K: jumlah dari K pada cross validation
         :return: 
         """
-
+        lotpos, lotneg, lotnet = cls.group_by_sentiment(copy.deepcopy(lot))
         if len(lot) >= K :
+            print("start k-fold ke -{}".format(K))
+            tot_profil = {}
+            for i in range(1,8):
+                tot_profil['TR'+str(i)] = [0,0,0]
             total_accuracy = 0
             tot_precision = tot_recall = tot_f_measure = [0,0,0]
-            tot_tp = tot_fp = tot_fn = 0
-            random.shuffle(cls.list_of_train_tweet_pos)
-            random.shuffle(cls.list_of_train_tweet_neg)
-            random.shuffle(cls.list_of_train_tweet_net)
+            tot_tp = tot_fp = tot_fn = [0,0,0]
+            random.shuffle(lotpos)
+            random.shuffle(lotneg)
+            random.shuffle(lotnet)
             for i in range(0,K):
                 print("Processing Fold {}".format(K))
                 list_of_validation_tweet = []
-                list_of_validation_tweet_pos = [tweet for idx,tweet in enumerate(cls.list_of_train_tweet_pos) if idx % K == i]
-                list_of_validation_tweet_neg = [tweet for idx,tweet in enumerate(cls.list_of_train_tweet_neg) if idx % K == i]
-                list_of_validation_tweet_net = [tweet for idx,tweet in enumerate(cls.list_of_train_tweet_net) if idx % K == i]
+                list_of_validation_tweet_pos = [tweet for idx,tweet in enumerate(lotpos) if idx % K == i]
+                list_of_validation_tweet_neg = [tweet for idx,tweet in enumerate(lotneg) if idx % K == i]
+                list_of_validation_tweet_net = [tweet for idx,tweet in enumerate(lotnet) if idx % K == i]
                 list_of_validation_tweet.extend(list_of_validation_tweet_pos)
                 list_of_validation_tweet.extend(list_of_validation_tweet_neg)
                 list_of_validation_tweet.extend(list_of_validation_tweet_net)
@@ -492,12 +694,21 @@ class TextAnalyze(object):
                     )
                     lot_test.append(temp_test)
                     id_test +=1
+                for tweet in lot_test:
+                    for term in tweet.filter_tweet:
+                        term.weight = cls.calculate_tf(token=term.name, filterTweet=tweet.filter_tweet, isTrain=False)
                 list_of_train_tweet = [tweet for idx,tweet in enumerate(lot) if tweet not in list_of_validation_tweet]
+
                 list_of_train_tokens = cls.initialize_train_tokens(list_of_train_tweet)
                 cls.feature_extraction(list_of_train_tweet,list_of_train_tokens)
                 cls.grouping_profil(list_of_train_tweet)
+                cls.grouping_profil(lot_test)
                 model_classification = cls.naive_bayes_make_classification_model(lot=list_of_train_tweet,train_token=list_of_train_tokens)
                 test_result = cls.naive_bayes_determine_classification(lot=lot_test,loc=model_classification)
+                profil = cls.calculate_profil(lot=test_result)
+                for i in range(1,8):
+                    tot_profil['TR'+str(i)] = [sum(x) for x in zip(profil['TR'+str(i)],tot_profil['TR'+str(i)])]
+
 
                 conf_matrix = cls.make_confusion_matrix(test_result)
                 cls.print_conf_matrix(conf_matrix)
@@ -505,6 +716,7 @@ class TextAnalyze(object):
                 total_accuracy += accuracy
 
                 print("Validasi-----------{} | accuracy  {} ".format(i, str(accuracy)))
+                #cls.print_train_tweet(list_of_train_tweet)
                 cls.print_test_tweet(test_result)
                 mean_accuracy = float(total_accuracy / (K - 1))
                 if averaging.lower() == "macro":
@@ -521,14 +733,24 @@ class TextAnalyze(object):
             print("recall:{}".format(tot_recall))
             print("f-measure:{}".format(tot_f_measure))
             if averaging.lower() == "macro":
-                table = cls.evaluation_performance(param_eval1=tot_precision,param_eval2=tot_recall,
+                table,individual_data = cls.evaluation_performance(param_eval1=tot_precision,param_eval2=tot_recall,
                                                    param_eval3=tot_f_measure,averaging=averaging,
-                                                   multi_label=multi_label,K=K)
+                                                   multi_label=True,K=K)
+                table2,whole_data = cls.evaluation_performance(param_eval1=tot_tp, param_eval2=tot_fp,
+                                                    param_eval3=tot_fn, averaging=averaging,
+                                                    multi_label=False, K=K)
             else:
-                table = cls.evaluation_performance(param_eval1=tot_tp, param_eval2=tot_fp,
+                table,individual_data = cls.evaluation_performance(param_eval1=tot_tp, param_eval2=tot_fp,
                                                    param_eval3=tot_fn, averaging=averaging,
-                                                   multi_label=multi_label,K=K)
+                                                   multi_label=True,K=K)
+                table2,whole_data = cls.evaluation_performance(param_eval1=tot_tp, param_eval2=tot_fp,
+                                                    param_eval3=tot_fn, averaging=averaging,
+                                                    multi_label=False, K=K)
+
             print(table)
+            print(table2)
+
+            return individual_data,whole_data,tot_profil
 
     def calculate_accuracy(cls,lot):
         correct = 0
@@ -538,7 +760,7 @@ class TextAnalyze(object):
         return float(((correct/(len(lot)))*100)) if len(lot) > 0 else 0
 
     def evaluation_performance(cls,param_eval1,param_eval2,param_eval3,K,multi_label=True,averaging="macro"):
-        #print("peval1:{},peval2:{},peval3:{}".format(param_eval1,param_eval2,param_eval3))
+        print("peval1:{},peval2:{},peval3:{}".format(param_eval1,param_eval2,param_eval3))
         if multi_label:
             mean_precision  = [0, 0, 0]
             mean_recall  = [0, 0, 0]
@@ -550,29 +772,31 @@ class TextAnalyze(object):
                     mean_f_measure[i] = float(param_eval3[i] / (K))
             else:
                 for i in range(3):
-                    mean_precision[i] = float(param_eval1[i] / (param_eval1[i] + param_eval2[i]))
-                    mean_recall[i] = float(param_eval1[i] / (param_eval2[i] + param_eval3[i]))
+                    mean_precision[i] = float(param_eval1[i] /  param_eval2[i])
+                    mean_recall[i] = float(param_eval1[i] / param_eval3[i])
                     mean_f_measure[i] = float((2 * mean_precision[i] * mean_recall[i]) / (mean_precision[i] + mean_recall[i]))
             table = PrettyTable(['Kelas', 'Precision', 'Recall', 'F-Measure'])
-            table.add_row(["Positif", mean_precision[0], mean_recall[0], mean_f_measure[0]])
-            table.add_row(["Negatif", mean_precision[1], mean_recall[1], mean_f_measure[1]])
-            table.add_row(["Netral", mean_precision[2], mean_recall[2], mean_f_measure[2]])
-        else:
-            sum_param_eval1 = sum(param_eval1)/K
-            sum_param_eval2 = sum(param_eval2)/K
-            sum_param_eval3 = sum(param_eval3)/K
-            if averaging.lower() == "macro":
-                mean_precision = float(sum_param_eval1/3)
-                mean_recall = float(sum_param_eval2/3)
-                mean_f_measure = float(sum_param_eval3/3)
-            else:
-                mean_precision = float(sum_param_eval1 / (sum_param_eval1 + sum_param_eval2))/3
-                mean_recall = float(sum_param_eval1 / (sum_param_eval2 + sum_param_eval3))/3
-                mean_f_measure = float((2 * mean_precision * mean_recall) / (mean_precision + mean_recall))/3
-            table = PrettyTable(['Precision', 'Recall', 'F-Measure'])
-            table.add_row([mean_precision, mean_recall, mean_f_measure])
+            table.add_row(["Positif", mean_precision[0]*100, mean_recall[0]*100, mean_f_measure[0]*100])
+            table.add_row(["Negatif", mean_precision[1]*100, mean_recall[1]*100, mean_f_measure[1]*100])
+            table.add_row(["Netral", mean_precision[2]*100, mean_recall[2]*100, mean_f_measure[2]*100])
 
-        return table
+        else:
+            sum_param_eval1 = float(sum(param_eval1))
+            sum_param_eval2 = float(sum(param_eval2))
+            sum_param_eval3 = float(sum(param_eval3))
+            if averaging.lower() == "macro":
+                mean_precision = float(1/K)*float(sum_param_eval1/3)
+                mean_recall = float(1/K)*float(sum_param_eval2/3)
+                mean_f_measure = float(1/K)*float(sum_param_eval3/3)
+            else:
+                mean_precision = float(sum_param_eval1 / sum_param_eval2)
+                mean_recall = float(sum_param_eval1 /  sum_param_eval3)
+                mean_f_measure = float((2 * mean_precision * mean_recall) / (mean_precision + mean_recall))
+            table = PrettyTable(['Precision', 'Recall', 'F-Measure'])
+            table.add_row([mean_precision*100, mean_recall*100, mean_f_measure*100])
+
+        data = [mean_precision, mean_recall, mean_f_measure]
+        return table,data
 
     def make_confusion_matrix(cls,lot):
         """
@@ -657,9 +881,9 @@ class TextAnalyze(object):
                 recall = float(TP/FN) if FN>0 else 0
                 print("precision:{},recall:{}".format(precision,recall))
                 #print("TP:{},FP:{},FN:{}".format(TP,FP,FN))
-                precision_matrix.append(precision*100)
-                recall_matrix.append(recall*100)
-                f_measure_matrix.append((float((2*precision*recall)/(precision+recall))*100) if precision > 0 and recall > 0 else 0)
+                precision_matrix.append(precision)
+                recall_matrix.append(recall)
+                f_measure_matrix.append((float((2*precision*recall)/(precision+recall))) if precision > 0 and recall > 0 else 0)
             else :
                 TP_matrix.append(TP)
                 FP_matrix.append(FP)
@@ -670,13 +894,17 @@ class TextAnalyze(object):
             return TP_matrix,FP_matrix,FN_matrix
 
     def group_by_sentiment(cls,lot):
+        list_of_tweet_pos = []
+        list_of_tweet_neg = []
+        list_of_tweet_net = []
         for tweet in lot:
             if tweet.actual_sentiment.lower() == "positif":
-                cls.list_of_train_tweet_pos.append(tweet)
+                list_of_tweet_pos.append(tweet)
             elif tweet.actual_sentiment.lower() == "negatif":
-                cls.list_of_train_tweet_neg.append(tweet)
+                list_of_tweet_neg.append(tweet)
             else:
-                cls.list_of_train_tweet_net.append(tweet)
+                list_of_tweet_net.append(tweet)
+        return list_of_tweet_pos,list_of_tweet_neg,list_of_tweet_net
 
 # ============================= END Performance Evaluation =========================
     #--------------------------- ekstraksi fitur ------------------------------------------
@@ -691,7 +919,7 @@ class TextAnalyze(object):
             for term in tweet.filter_tweet:
                 tokens.append(term.name)
         list_of_tokens = list(set(tokens))
-        #print(list_of_tokens)
+        # print(list_of_tokens)
         index = 1
         for token in list_of_tokens:
             count_token = 0
