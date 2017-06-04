@@ -9,15 +9,15 @@ import json
 filecsv = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\anies_json_7_sd_13_2_2017_tweets.csv"
 filecsvanislatih = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\Data_latih_anies_sandiaga.csv"
 filecsvanisuji = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\Data_uji_anies_sandiaga.csv"
-filecsvtokoh = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\CSV\\Data_uji_ahok_djarot.csv"
-filecsv1k = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\CSV_Data_latih\\Data_ahok_djarot.csv"
+filecsvtokoh = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\CSV\\Data_uji_anies_sandiaga.csv"
+filecsv1k = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\CSV_Data_latih\\Data_agus_sylvi.csv"
 filecsvtest = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\test_uji.csv"
 filecsvtrain = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\test_train.csv"
 uji_coba2 = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\uji_coba2.csv"
 fileEmoticon ="C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Preprocessing\\convert_emoticon.csv"
 fileStopWord = "C:\\Users\\qitma\Dropbox\\Tugas Akhir\\Dataset\\Preprocessing\\stop_word.txt"
 fileProfilTrait = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Preprocessing\\eksplisit_fitur\\profil_trait.csv"
-specialStopWords = {'anies','baswedan','sandiaga','uno'}
+specialStopWords = {'anies','anis','sandiaga','uno','baswedan'}
 specialProfilTR1 = ['negasi_korupsi','korupsi']
 negation_word = ['ga','tidak','tdk','jangan','jgn','ngggak','g','tak','gak','bukan']
 sw=open(fileStopWord,encoding='utf-8', mode='r');stop=sw.readlines();sw.close()
@@ -26,8 +26,8 @@ stop=stop.union(specialStopWords)
 tic=timeit.default_timer()
 textAnalyze = TextAnalyze()
 store = Store()
-textAnalyze.list_of_train_tweet = textAnalyze.import_file_train_to_object(fileName=filecsv1k)
-textAnalyze.preprocessing(fileEmoticon=fileEmoticon,negationWord=negation_word,stopWord=stop,listOfTweet=textAnalyze.list_of_train_tweet)
+textAnalyze.list_of_test_tweet = textAnalyze.import_file_test_to_object(fileName=filecsvtokoh)
+textAnalyze.preprocessing(fileEmoticon=fileEmoticon,negationWord=negation_word,stopWord=stop,listOfTweet=textAnalyze.list_of_test_tweet)
 textAnalyze.initialize_profil_trait(fileName=fileProfilTrait,list_tr1=specialProfilTR1)
 
 #------ test make profil ---------------
@@ -39,11 +39,11 @@ textAnalyze.initialize_profil_trait(fileName=fileProfilTrait,list_tr1=specialPro
 # store.import_profil_to_excel(header_format=['Profil','Jumlah'],filename="profil_anies_sandi_1000",data=profil,sheet_name="profil")
 # print(profil)
 #----- end test make profil ===================
-# namafile="data_1000_ahok_djarot"
-# file = open('dataset/'+namafile+'.json', 'w')
-# textAnalyze.toJSON(objFile=file)
-# toc=timeit.default_timer()
-# print("time for preprocessing:{}".format(toc - tic))
+namafile="data_uji_anies_sandiaga"
+file = open('dataset/'+namafile+'.json', 'w')
+textAnalyze.toJSON(objFile=file)
+toc=timeit.default_timer()
+print("time for preprocessing:{}".format(toc - tic))
 #-------------- test active learning -------------------- #
 # textAnalyze.import_json_to_object('dataset/data_1000_anies_sandiaga.json')
 #data_pool,data_train = textAnalyze.initial_data_train_and_data_pool(data_pool=textAnalyze.list_of_train_tweet,initial_ratio=10)
