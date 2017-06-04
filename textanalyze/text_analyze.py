@@ -191,7 +191,7 @@ class TextAnalyze(object):
             cls.grouping_profil(lot=list_of_test_tweet)
             #cls.print_train_tweet(train_tweet)
             model_classification = cls.naive_bayes_make_classification_model(lot=train_tweet,train_token = train_token)
-            test_result = cls.naive_bayes_determine_classification(lot=list_of_test_tweet,loc=model_classification)
+            test_result = cls.naive_bayes_determine_classification(lot=list_of_test_tweet, model=model_classification)
 
             return test_result
         else:
@@ -234,9 +234,9 @@ class TextAnalyze(object):
         jml_data_pos = int(math.ceil((len(lotpos)*initial_ratio)/100))
         jml_data_neg = int(math.ceil((len(lotneg)*initial_ratio)/100))
         jml_data_net = int(math.ceil((len(lotnet)*initial_ratio)/100))
-        random.shuffle(lotpos)
-        random.shuffle(lotneg)
-        random.shuffle(lotnet)
+        # random.shuffle(lotpos)
+        # random.shuffle(lotneg)
+        # random.shuffle(lotnet)
         lot = []
         lot.extend(copy.deepcopy(lotpos[:jml_data_pos]))
         lot.extend(copy.deepcopy(lotneg[:jml_data_neg]))
@@ -248,7 +248,10 @@ class TextAnalyze(object):
         #print("lot:{}".format(len(lot)))
         return lod,lot
 
-    def active_learning(cls,data_pool,data_train,max_query = 5,query_method = "entropy",query_count = 50,cluster_k = 50,is_interactive=True,data_gold=None,K_fold = 3):
+    def active_learning(cls,data_pool,data_train,data_test,max_query = 5,query_method = "entropy",query_count = 50,cluster_k = 50,is_interactive=True,data_gold=None):
+        list_whole = []
+        list_individu = []
+        data_train_rekap = []
         lot = copy.deepcopy(data_train)
         lod = copy.deepcopy(data_pool)
         #print(len(lot))
@@ -265,14 +268,54 @@ class TextAnalyze(object):
         #cls.print_cls(model_classification)
         while(not_stop):
             print("---------iterasi {}---------".format(str(iterasi)))
-            #cls.print_train_tweet(lot)
-            # tic = timeit.default_timer()
-            # cls.k_fold_cross_validation(lot=lot,K=K_fold,averaging="macro")
-            # toc = timeit.default_timer()
-            # print("time for CV:{}".format(toc - tic))
+            test_result = cls.naive_bayes_determine_classification(lot=data_test,model=model_classification)
+            conf_matrix = cls.make_confusion_matrix(lot=test_result)
+            cls.print_conf_matrix(conf_matrix)
+            tp,fp,fn = cls.calculate_precision_recall_f1_measure(conf_matrix=conf_matrix,averaging="micro")
+            #print("tp:{},fp:{},fn:{}".format(tp,fp,fn))
+            table1,individual_data = cls.evaluation_performance(param_eval1=tp,param_eval2=fp,param_eval3=fn,averaging="micro",multi_label=True,K=1)
+            table2,whole_data = cls.evaluation_performance(param_eval1=tp,param_eval2=fp,param_eval3=fn,averaging="micro",multi_label=False,K=1)
+            print(table1)
+            print(table2)
+            #-------------------------- OUTPUT --------------------------
+            count_data_pool = sum(len(val) for key, val in trans_cluster.items())
+            print("Data train already :{}".format(len(lot)))
+            print("Res Data pool :{}".format(count_data_pool))
+            print("Rest Max Query :{}".format(max_query - max_q))
+
+            #---------- experiment purpose ----------------------------
+            whole = {'performa': [value * 100 for value in whole_data]}
+            individu = {}
+            list_perform_pos = []
+            list_perform_neg = []
+            list_perform_net = []
+            for i in range(3):
+                list_perform_pos.append(individual_data[i][0] * 100)
+                list_perform_neg.append(individual_data[i][1] * 100)
+                list_perform_net.append(individual_data[i][2] * 100)
+            individu['positif'] = list_perform_pos
+            individu['negatif'] = list_perform_neg
+            individu['netral'] = list_perform_net
+            list_whole.append(whole)
+            list_individu.append(individu)
+            data_train_rekap.append({'jumlah_data_train': [len(lot),'',''],
+                                     'sisa_data': [count_data_pool,'',''],
+                                     'sisa_query': [max_query - max_q,'',''],
+                                     'jumlah_data_per_query': [query_count,'','']})
+            #data_train_rekap.append({'jumlah':[len(lot),count_data_pool,max_query-max_q,query_count]})
+            #---------- end experiment purpose ------------------------
+            if max_q >= max_query or count_data_pool == 0:
+                break
+            is_stop, query_count = cls.stop_acl()
+            if count_data_pool < query_count:
+                query_count = count_data_pool
+            iterasi += 1
+            if is_stop:
+                break
+            # --------------------------END OUTPUT -----------------------
             list_of_query = []
-            #print(len(list_of_train_tokens))
             count = 0
+            print("Searching uncertain data....")
             while(count<query_count):
                 for key,group in trans_cluster.items():
                     if len(group) > 0:
@@ -281,6 +324,7 @@ class TextAnalyze(object):
                         group.remove(selected_tweet)
                         count+=1
             max_q += 1
+            print("Make annotation from oracle/data gold")
             if is_interactive:
                 lot.extend(cls.interactive_label(list_of_query))
             else:
@@ -289,28 +333,26 @@ class TextAnalyze(object):
                 else:
                     print("data gold is None")
                     lot.extend(cls.interactive_label(list_of_query))
+            print("Upgrade machine knowledge...")
             list_of_train_tokens = cls.initialize_train_tokens(lot)
             cls.feature_extraction(lot, list_of_train_tokens)
             cls.grouping_profil(lot)
             model_classification = cls.naive_bayes_make_classification_model(lot=lot, train_token=list_of_train_tokens)
-            count_data_pool = sum(len(val) for key, val in trans_cluster.items())
-            print("Data train already :{}".format(len(lot)))
-            print("Res Data pool :{}".format(count_data_pool))
-            print("Rest Max Query :{}".format(max_query-max_q))
-            is_stop = cls.stop_acl()
-            if count_data_pool < query_count:
-                query_count = count_data_pool
-            iterasi+=1
-            if is_stop or count_data_pool == 0 or max_q >= max_query:
-                not_stop = False
+
+        print("Active learning done...")
+        return list_whole,list_individu,data_train_rekap
 
     def stop_acl(cls):
-        print("Do you want to stop Active Learning ? [Y/N]")
-        output = input()
+        output = input("Do you want to stop Active Learning ? [Y/N]")
+        correct = False
         if output.lower() == 'y':
-            return True
+            return True,0
         else:
-            return False
+            while(not correct):
+                query = input("How many data do you want to queries?")
+                while(not query.isdigit() or int(query) <= 0):
+                    query = input("Input must be numeric greater than 0 !!")
+                return False,int(query)
 
     def gold_label(cls,list_of_query,gold_label):
         loq = copy.deepcopy(list_of_query)
@@ -534,14 +576,14 @@ class TextAnalyze(object):
         list_of_classification = copy.deepcopy(cls.naive_bayes_normalization(cls.naive_bayes_weight(cls.naive_bayes_complement(loc=loc,list_of_train_tokens=train_token))))
         return list_of_classification
 
-    def naive_bayes_determine_classification (cls,lot,loc):
+    def naive_bayes_determine_classification (cls, lot, model):
         list_of_test_tweet = copy.deepcopy(lot)
         for tweet in list_of_test_tweet:
             total_prob = {"positif": 0, "negatif": 0, "netral": 0}
             for term in tweet.filter_tweet:
                 # term.weight = float(
                 #     sum(1 for token in tweet.filter_tweet if token.name == term.name) / len(tweet.filter_tweet))
-                for model_classification in loc:
+                for model_classification in model:
                     # print("lolol")
                     # print("cmp prob pos:{},cmp prob neg:{}, cmp prob net:{}".format(model_classification.prob_pos, model_classification.prob_neg,
                     #                                                                 model_classification.prob_net))
@@ -704,7 +746,7 @@ class TextAnalyze(object):
                 cls.grouping_profil(list_of_train_tweet)
                 cls.grouping_profil(lot_test)
                 model_classification = cls.naive_bayes_make_classification_model(lot=list_of_train_tweet,train_token=list_of_train_tokens)
-                test_result = cls.naive_bayes_determine_classification(lot=lot_test,loc=model_classification)
+                test_result = cls.naive_bayes_determine_classification(lot=lot_test, model=model_classification)
                 profil = cls.calculate_profil(lot=test_result)
                 for i in range(1,8):
                     tot_profil['TR'+str(i)] = [sum(x) for x in zip(profil['TR'+str(i)],tot_profil['TR'+str(i)])]
