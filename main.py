@@ -9,7 +9,7 @@ import json
 filecsv = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\anies_json_7_sd_13_2_2017_tweets.csv"
 filecsvanislatih = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\Data_latih_anies_sandiaga.csv"
 filecsvanisuji = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\Data_uji_anies_sandiaga.csv"
-filecsvtokoh = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\CSV\\Data_uji_anies_sandiaga.csv"
+filecsvtokoh = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\CSV\\Data_uji_agus_sylvi.csv"
 filecsv1k = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Teh Wulan\\CSV_Data_latih\\Data_agus_sylvi.csv"
 filecsvtest = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\test_uji.csv"
 filecsvtrain = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Praproses\\Qitma\\test_train.csv"
@@ -17,7 +17,9 @@ uji_coba2 = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Data Twitter\\Prap
 fileEmoticon ="C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Preprocessing\\convert_emoticon.csv"
 fileStopWord = "C:\\Users\\qitma\Dropbox\\Tugas Akhir\\Dataset\\Preprocessing\\stop_word.txt"
 fileProfilTrait = "C:\\Users\\qitma\\Dropbox\\Tugas Akhir\\Dataset\\Preprocessing\\eksplisit_fitur\\profil_trait.csv"
-specialStopWords = {'anies','anis','sandiaga','uno','baswedan'}
+specialStopWords = {'','agus','yudhoyono','sylvi','harimurti','sylviana'}
+# specialStopWords = {'','anis','sandiaga','uno','baswedan'}
+# specialStopWords = {'djarot','ahok','basuki','tjahaja','purnama','badja'}
 specialProfilTR1 = ['negasi_korupsi','korupsi']
 negation_word = ['ga','tidak','tdk','jangan','jgn','ngggak','g','tak','gak','bukan']
 sw=open(fileStopWord,encoding='utf-8', mode='r');stop=sw.readlines();sw.close()
@@ -39,7 +41,7 @@ textAnalyze.initialize_profil_trait(fileName=fileProfilTrait,list_tr1=specialPro
 # store.import_profil_to_excel(header_format=['Profil','Jumlah'],filename="profil_anies_sandi_1000",data=profil,sheet_name="profil")
 # print(profil)
 #----- end test make profil ===================
-namafile="data_uji_anies_sandiaga"
+namafile="data_uji_agus_sylvi"
 file = open('dataset/'+namafile+'.json', 'w')
 textAnalyze.toJSON(objFile=file)
 toc=timeit.default_timer()

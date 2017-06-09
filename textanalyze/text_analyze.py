@@ -2,6 +2,7 @@ import csv , sys , re , string , enum , math , copy
 import json
 from nltk import word_tokenize
 from prettytable import PrettyTable
+import collections
 import timeit
 #from itertools import count
 import random
@@ -221,34 +222,49 @@ class TextAnalyze(object):
 
 #======================== Active Learning ============================
 
-    def initial_data_train_and_data_pool(cls, data_pool, initial_ratio = 10):
+    def initial_data_train_and_data_pool(cls, data_pool, initial_data_train = 100,cluster_k = 100):
         """
         :param data_pool: data pool yang sudah melalui tahap preprocessing dan dengan asumsi data pool sudah
                             diberi label semua <untuk kepentingan eksperimen>
-        :param initial_ratio:  ratio yang ingin dijadikan data latih awal untuk membentuk model di active learning
+        :param initial_data_train:  ratio yang ingin dijadikan data latih awal untuk membentuk model di active learning
                                 dalam satuan (%)
         :return:
         """
         #cls.print_train_tweet(data_pool)
-        lotpos,lotneg,lotnet = cls.group_by_sentiment(copy.deepcopy(data_pool))
-        jml_data_pos = int(math.ceil((len(lotpos)*initial_ratio)/100))
-        jml_data_neg = int(math.ceil((len(lotneg)*initial_ratio)/100))
-        jml_data_net = int(math.ceil((len(lotnet)*initial_ratio)/100))
+        # lotpos,lotneg,lotnet = cls.group_by_sentiment(copy.deepcopy(data_pool))
+        # jml_data_pos = int(math.ceil((len(lotpos) * initial_data_train) / 100))
+        # jml_data_neg = int(math.ceil((len(lotneg) * initial_data_train) / 100))
+        # jml_data_net = int(math.ceil((len(lotnet) * initial_data_train) / 100))
         # random.shuffle(lotpos)
         # random.shuffle(lotneg)
         # random.shuffle(lotnet)
+        lod = copy.deepcopy(data_pool)
+        cluster_lod = cls.clustering_k_means(list_of_tweet=lod, cluster_K=cluster_k, )
+        trans_cluster = cls.transform_cluster(cluster_lod)
         lot = []
-        lot.extend(copy.deepcopy(lotpos[:jml_data_pos]))
-        lot.extend(copy.deepcopy(lotneg[:jml_data_neg]))
-        lot.extend(copy.deepcopy(lotnet[:jml_data_net]))
+        count = 0
+        while (count < initial_data_train):
+            for key, group in trans_cluster.items():
+                if len(group) > 0:
+                    random.shuffle(group)
+                    lot.append(group[0])
+                    group.remove(group[0])
+                    count += 1
+        # lot.extend(copy.deepcopy(lotpos[:jml_data_pos]))
+        # lot.extend(copy.deepcopy(lotneg[:jml_data_neg]))
+        # lot.extend(copy.deepcopy(lotnet[:jml_data_net]))
         data_pool = [tweet for tweet in data_pool if tweet not in lot]
         lod = copy.deepcopy(data_pool)
+        # for tweet in lot:
+        #     print("train_id lot:{}".format(tweet.train_id))
         for tweet in lod:
+            # print("train_id pool:{}".format(tweet.train_id))
             tweet.actual_sentiment = None
-        #print("lot:{}".format(len(lot)))
+        print("lot:{}".format(len(lot)))
+        print("lod:{}".format(len(lod)))
         return lod,lot
 
-    def active_learning(cls,data_pool,data_train,data_test,max_query = 5,query_method = "entropy",query_count = 50,cluster_k = 50,is_interactive=True,data_gold=None):
+    def active_learning(cls, data_pool, data_train, data_test, max_query = 5, query_method = "entropy", cluster_data_pool = False, query_amount = 50, cluster_k = 50, is_interactive=True, data_gold=None):
         list_whole = []
         list_individu = []
         data_train_rekap = []
@@ -256,8 +272,9 @@ class TextAnalyze(object):
         lod = copy.deepcopy(data_pool)
         #print(len(lot))
         #print(len(lod))
-        cluster_lod = cls.clustering_k_means(list_of_tweet=lod,cluster_K=cluster_k,)
-        trans_cluster = cls.transform_cluster(cluster_lod)
+        if cluster_data_pool:
+            cluster_lod = cls.clustering_k_means(list_of_tweet=lod,cluster_K=cluster_k,)
+            trans_cluster = cls.transform_cluster(cluster_lod)
         not_stop = True
         max_q = 0
         iterasi = 0
@@ -278,7 +295,10 @@ class TextAnalyze(object):
             print(table1)
             print(table2)
             #-------------------------- OUTPUT --------------------------
-            count_data_pool = sum(len(val) for key, val in trans_cluster.items())
+            if cluster_data_pool:
+                count_data_pool = sum(len(val) for key, val in trans_cluster.items())
+            else:
+                count_data_pool = len(lod)
             print("Data train already :{}".format(len(lot)))
             print("Res Data pool :{}".format(count_data_pool))
             print("Rest Max Query :{}".format(max_query - max_q))
@@ -301,14 +321,14 @@ class TextAnalyze(object):
             data_train_rekap.append({'jumlah_data_train': [len(lot),'',''],
                                      'sisa_data': [count_data_pool,'',''],
                                      'sisa_query': [max_query - max_q,'',''],
-                                     'jumlah_data_per_query': [query_count,'','']})
+                                     'jumlah_data_per_query': [query_amount, '', '']})
             #data_train_rekap.append({'jumlah':[len(lot),count_data_pool,max_query-max_q,query_count]})
             #---------- end experiment purpose ------------------------
-            if max_q >= max_query or count_data_pool == 0:
-                break
-            is_stop, query_count = cls.stop_acl()
-            if count_data_pool < query_count:
-                query_count = count_data_pool
+            is_stop, query_amount = cls.stop_acl()
+            if count_data_pool < query_amount:
+                query_amount = count_data_pool
+            print("query amount:{}".format(query_amount))
+
             iterasi += 1
             if is_stop:
                 break
@@ -316,13 +336,25 @@ class TextAnalyze(object):
             list_of_query = []
             count = 0
             print("Searching uncertain data....")
-            while(count<query_count):
-                for key,group in trans_cluster.items():
-                    if len(group) > 0:
-                        selected_tweet = cls.uncertain_entropy(lot=group,model_classification=model_classification)
-                        list_of_query.append(selected_tweet)
-                        group.remove(selected_tweet)
-                        count+=1
+            if cluster_data_pool:
+                while(count<query_amount):
+                    for key,group in trans_cluster.items():
+                        if len(group) > 0:
+                            selected_tweet = cls.uncertain_entropy(lot=group, model_classification=model_classification,
+                                                                   return_list= False, tweet_amount=query_amount)
+                            list_of_query.append(selected_tweet)
+                            group.remove(selected_tweet)
+                            count+=1
+            else:
+                print("cluster data pool false")
+                selected_tweet = cls.uncertain_entropy(lot=lod, model_classification=model_classification,
+                                                       return_list= True, tweet_amount=query_amount)
+                for tweet in selected_tweet:
+                    lod.remove(tweet)
+                list_of_query.extend(selected_tweet)
+            if max_q == max_query or count_data_pool == 0:
+                print("Max Query sudah tercapai atau data pool sudah habis!!")
+                break
             max_q += 1
             print("Make annotation from oracle/data gold")
             if is_interactive:
@@ -401,16 +433,15 @@ class TextAnalyze(object):
 
         return cluster
 
-
-    def uncertain_entropy(cls,lot,model_classification):
+    def make_model_entropy(cls, lot, model_classification):
         list_of_tweet = copy.deepcopy(lot)
         dict_prob = {}
         for tweet in list_of_tweet:
             total_prob = {"positif": 0, "negatif": 0, "netral": 0}
-            #print("train_id:{},tweet:{}".format(tweet.train_id, tweet.tweet))
+            # print("train_id:{},tweet:{}".format(tweet.train_id, tweet.tweet))
             for term in tweet.filter_tweet:
                 term.weight = cls.calculate_tf(token=term.name, filterTweet=tweet.filter_tweet, isTrain=False)
-                #print("term:{},weight:{}".format(term.name,term.weight))
+                # print("term:{},weight:{}".format(term.name,term.weight))
                 # term.weight = float(
                 #     sum(1 for token in tweet.filter_tweet if token.name == term.name) / len(tweet.filter_tweet))
                 for mc in model_classification:
@@ -418,25 +449,44 @@ class TextAnalyze(object):
                     # print("cmp prob pos:{},cmp prob neg:{}, cmp prob net:{}".format(mc.prob_pos, mc.prob_neg,
                     #                                                                 mc.prob_net))
                     if term.name == mc.term_name:
-                        #print("masuk if")
+                        # print("masuk if")
                         total_prob['positif'] = total_prob['positif'] + (mc.prob_pos * term.weight)
                         total_prob['negatif'] = total_prob['negatif'] + (mc.prob_neg * term.weight)
                         total_prob['netral'] = total_prob['netral'] + (mc.prob_net * term.weight)
-            #print("prob_pos :{},prob_neg:{},prob_net:{}".format(total_prob['positif'], total_prob['negatif'], total_prob['netral']))
+            # print("prob_pos :{},prob_neg:{},prob_net:{}".format(total_prob['positif'], total_prob['negatif'], total_prob['netral']))
 
-            #print(total_prob)
+            # print(total_prob)
             norm_prob = cls.min_max_normalization(total_prob)
-            log_prob = {key:math.log(value+1,10) for key,value in norm_prob.items()}
-            ent_prob = {key:value * log_prob[key] for key,value in norm_prob.items()}
+            log_prob = {key: math.log(value + 1, 10) for key, value in norm_prob.items()}
+            ent_prob = {key: value * log_prob[key] for key, value in norm_prob.items()}
             sum_prob = -sum(ent_prob.values())
-            dict_prob[sum_prob] = tweet
+            dict_prob[tweet.train_id] = {'tweet': tweet, 'prob': sum_prob}
+
+        return dict_prob
+
+    def uncertain_entropy(cls, lot, model_classification, return_list, tweet_amount):
+        dict_prob = cls.make_model_entropy(lot=lot,model_classification=model_classification)
             #print(dict_prob)
         #print(len(dict_prob))
         # for key,tweet in dict_prob.items():
         #     print(key)
         #     print("train_id:{},tweet:{}".format(tweet.train_id,tweet.tweet))
-        entp_tw = max(dict_prob.keys())
-        return dict_prob[entp_tw]
+        if not return_list:
+            entp_key = max(dict_prob.keys(),key=lambda k:dict_prob[k]['prob'])
+            return dict_prob[entp_key]['tweet']
+        else:
+            list_tweet = []
+            count = 0
+            for val in sorted(dict_prob.items(), key=lambda k_v: k_v[1]['prob'], reverse=True):
+                if count < tweet_amount:
+                    #print(val[1]['prob'])
+                    list_tweet.append(val[1]['tweet'])
+                    count+=1
+                else:
+                    break
+            print("panjang tweet:{}".format(len(list_tweet)))
+            #cls.print_train_tweet(list_tweet)
+            return list_tweet
 
     def min_max_normalization(cls,dict_prob):
         #print(dict_prob)
