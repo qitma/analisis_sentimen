@@ -17,7 +17,7 @@ from traintweet import TrainTweet
 from testtweet import TestTweet
 from term import Term
 from classification import Classification
-from clustering import  Clustering
+#from clustering import  Clustering
 
 class TextAnalyze(object):
     def __init__(cls):
@@ -26,14 +26,14 @@ class TextAnalyze(object):
         cls.list_of_emoticon = []
         # cls.list_of_positive_word = []
         # cls.list_of_negative_word = []
-        cls.list_of_data_pool = []
-        cls.list_of_gold_tweet = []
+        #cls.list_of_data_pool = []
+        #cls.list_of_gold_tweet = []
         cls.list_of_train_tokens = []
         cls.list_of_profile_trait = []
         cls.list_of_classification = []
-        cls.list_of_train_tweet_pos = []
-        cls.list_of_train_tweet_neg = []
-        cls.list_of_train_tweet_net = []
+        #cls.list_of_train_tweet_pos = []
+        #cls.list_of_train_tweet_neg = []
+        #cls.list_of_train_tweet_net = []
         #cls.list_of_cluster_tweet = []
 
     def toJSON(self, objFile):
@@ -219,6 +219,15 @@ class TextAnalyze(object):
             profil['TR'+str(i)] = [count_pos,count_neg,count_net]
 
         return profil
+
+    def get_most_feature_class(cls,list_of_tweet):
+        lot = copy.deepcopy(list_of_tweet)
+        lotpos,lotneg,lotnet = cls.group_by_sentiment(lot)
+        token_pos = cls.initialize_train_tokens(lotpos)
+        token_net = cls.initialize_train_tokens(lotnet)
+        token_neg = cls.initialize_train_tokens(lotneg)
+
+        return token_pos,token_neg,token_net
 
 #======================== Active Learning ============================
 
@@ -1142,7 +1151,6 @@ class TextAnalyze(object):
 
         for term in listOfTerm:
             term.weight = float(term.weight/math.sqrt(denominator_value))
-
 
     def feature_selection(cls,filter_tweet,tokens):
         feature = []

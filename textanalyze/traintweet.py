@@ -8,12 +8,10 @@ class TrainTweet(Tweet):
                 filter_tweet = None,
                 profil = None,
                 sentiment = None,
-                status_train = None,
                 cluster = None):
         self.train_id = train_id
         super().__init__(id_str,created_date,tweet,filter_tweet,profil,sentiment)
         self.cluster = cluster
-        self.status_train = status_train
 
    def __eq__(self, other):
         return self.train_id == other.train_id

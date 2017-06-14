@@ -3,6 +3,57 @@ import xlsxwriter
 import xlrd
 
 class Store(object):
+    def import_token_to_excel(cls,header_format,filename,token_pos,token_neg,token_net,sheet_name):
+        """
+                :param header_format: berupa list contoh : [1,2,3]
+                :param filename: nama file
+                :param data: berupa dictionary dengan aturan value berupa list contoh key:[1,2,3]
+                :param sheet_name: nama dari sheet nya
+                :return:
+                """
+        workbook = xlsxwriter.Workbook(filename=filename + ".xlsx")
+        worksheet = workbook.add_worksheet(sheet_name)
+        merge_format1 = workbook.add_format({
+            'align': 'left',
+            'valign': 'vcenter',
+            'fg_color': 'yellow'})
+
+        worksheet.merge_range('A1:C1', 'POSITIF', merge_format1)
+        worksheet.merge_range('E1:G1', 'Negatif', merge_format1)
+        worksheet.merge_range('I1:K1', 'Netral', merge_format1)
+        c = 0
+        for i in range(1,4):
+            for header in header_format:
+                worksheet.write(1, c, header)
+                c += 1
+            c = c + 1
+
+        row = 2
+        col = 0
+        for token in token_pos:
+            worksheet.write(row, col, token['id'])
+            worksheet.write(row, col+1, token['name'])
+            worksheet.write(row, col+2, token['count'])
+            row += 1
+        col = 4
+        row = 2
+        for token in token_neg:
+            worksheet.write(row, col, token['id'])
+            worksheet.write(row, col+1, token['name'])
+            worksheet.write(row, col+2, token['count'])
+            row += 1
+        col = 8
+        row = 2
+        for token in token_net:
+            worksheet.write(row, col, token['id'])
+            worksheet.write(row, col+1, token['name'])
+            worksheet.write(row, col+2, token['count'])
+            row += 1
+
+        workbook.close()
+
+        print("Import token to excel succes...")
+
     def import_profil_to_excel(cls,header_format,filename,data,sheet_name):
         """
         :param header_format: berupa list contoh : [1,2,3]
