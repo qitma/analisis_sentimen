@@ -17,7 +17,7 @@ from traintweet import TrainTweet
 from testtweet import TestTweet
 from term import Term
 from classification import Classification
-#from clustering import  Clustering
+from clustering import  Clustering
 
 class TextAnalyze(object):
     def __init__(cls):
@@ -81,7 +81,6 @@ class TextAnalyze(object):
                 created_date=jtweet['created_date'],
                 filter_tweet=copy.deepcopy(list_of_filter),
                 train_id=jtweet['train_id'],
-                status_train=jtweet['status_train']
 
             )
             cls.list_of_train_tweet.append(temp_train)

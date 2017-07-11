@@ -1,9 +1,11 @@
 from textanalyze.text_analyze import *
 from store import *
+import timeit
 textAnalyze_latih = TextAnalyze()
 textAnalyze_uji = TextAnalyze()
 store = Store()
 #--------------------- Uji non AL -----------------------------------------------------
+tic=timeit.default_timer()
 textAnalyze_latih.import_json_to_object('dataset/data_latih_agus_sylvi.json')
 textAnalyze_uji.import_json_to_object('dataset/data_uji_agus_sylvi.json')
 
@@ -28,3 +30,5 @@ table1,data1 = textAnalyze_uji.evaluation_performance(param_eval1=tp,param_eval2
 table2,data2 = textAnalyze_uji.evaluation_performance(param_eval1=tp,param_eval2=fp,param_eval3=fn,averaging="micro",multi_label=False,K=1)
 print(table1)
 print(table2)
+toc=timeit.default_timer()
+print("time process :{}".format(toc - tic))

@@ -190,5 +190,5 @@ class Store(object):
 
         workbook.close()
 
-        print("Import profile to excel succes...")
+        print("Import profile to excel succes...:{}.xls".format(filename))
 

@@ -1,0 +1,2016 @@
+{
+    "list_of_classification": [],
+    "list_of_cluster_tweet": [],
+    "list_of_emoticon": [
+        {
+            "Representasi": "e_kecewa",
+            "UTF-8": "\\xf0\\x9f\\x91\\x8e"
+        },
+        {
+            "Representasi": "e_bangga_",
+            "UTF-8": "\\xf0\\x9f\\x91\\x8d"
+        },
+        {
+            "Representasi": "e_senang",
+            "UTF-8": "\\xf0\\x9f\\x98\\x81"
+        },
+        {
+            "Representasi": "e_senang",
+            "UTF-8": "\\xf0\\x9f\\x98\\x82"
+        },
+        {
+            "Representasi": "e_senang",
+            "UTF-8": "\\xf0\\x9f\\x98\\x83"
+        },
+        {
+            "Representasi": "e_senang",
+            "UTF-8": "\\xf0\\x9f\\x98\\x84"
+        },
+        {
+            "Representasi": "e_senang",
+            "UTF-8": "\\xf0\\x9f\\x98\\x8a"
+        },
+        {
+            "Representasi": "e_cinta",
+            "UTF-8": "\\xf0\\x9f\\x98\\x8d"
+        },
+        {
+            "Representasi": "e_ejek",
+            "UTF-8": "\\xf0\\x9f\\x98\\x9c"
+        },
+        {
+            "Representasi": "e_marah",
+            "UTF-8": "\\xf0\\x9f\\x98\\xa1"
+        },
+        {
+            "Representasi": "e_kecewa",
+            "UTF-8": "\\xf0\\x9f\\x98\\xa5"
+        },
+        {
+            "Representasi": "e_sedih",
+            "UTF-8": "\\xf0\\x9f\\x98\\xad"
+        },
+        {
+            "Representasi": "e_sindir",
+            "UTF-8": "\\xf0\\x9f\\x99\\x88"
+        },
+        {
+            "Representasi": "e_sindir",
+            "UTF-8": "\\xf0\\x9f\\x99\\x89"
+        },
+        {
+            "Representasi": "e_sindir",
+            "UTF-8": "\\xf0\\x9f\\x99\\x8a"
+        },
+        {
+            "Representasi": "e_senang",
+            "UTF-8": "\\xf0\\x9f\\x98\\x80"
+        }
+    ],
+    "list_of_negative_word": [],
+    "list_of_positive_word": [],
+    "list_of_profile_trait": [
+        {
+            "TR1": [
+                "negasi_korupsi",
+                "korupsi",
+                "kulit",
+                "putih",
+                "bersih",
+                "nilai",
+                "jujur",
+                "bajik",
+                "suci",
+                "eksplisit",
+                "inap",
+                "ikhlas",
+                "tulus",
+                "baik",
+                "hormat",
+                "nilai",
+                "benar",
+                "adil"
+            ],
+            "TR2": [
+                "dini",
+                "baru",
+                "pria",
+                "dominasi",
+                "perintah",
+                "wajib",
+                "tuhan",
+                "perang",
+                "kerja",
+                "pimpin"
+            ],
+            "TR3": [
+                "usaha",
+                "cinta",
+                "hormat",
+                "minat",
+                "akurat",
+                "cermat",
+                "tekun",
+                "pantau",
+                "periksa",
+                "aman",
+                "peduli",
+                "tahu",
+                "pelihara",
+                "jaga",
+                "taat",
+                "ikut",
+                "turut",
+                "tanggap",
+                "perhatian",
+                "perhati"
+            ],
+            "TR4": [
+                "pasti",
+                "bajik",
+                "mantap",
+                "kokoh",
+                "kukuh",
+                "semangat",
+                "tabah",
+                "tegar",
+                "konstap",
+                "aman",
+                "benar",
+                "jelas",
+                "terang",
+                "kasar",
+                "sukses",
+                "karisma",
+                "pengaruh",
+                "kontrol",
+                "kuat",
+                "pamor",
+                "hormat",
+                "arif",
+                "pandang",
+                "terkenal",
+                "cerdik",
+                "pandai",
+                "pintar",
+                "unggul",
+                "potensi",
+                "ilmu",
+                "tegas",
+                "wibawa"
+            ],
+            "TR5": [
+                "pandai",
+                "akal",
+                "ilmu",
+                "didik",
+                "cemerlang",
+                "tahu",
+                "terampil",
+                "cerdas",
+                "cekatan",
+                "cakap",
+                "mahir",
+                "produktif",
+                "sempurna",
+                "ensiklopedia",
+                "konsepsi",
+                "persepsi",
+                "pandang",
+                "pikiran",
+                "inteligensi",
+                "intuisi",
+                "kognisi",
+                "wawas",
+                "gagas",
+                "ideologi",
+                "ide",
+                "paham",
+                "pikiran"
+            ],
+            "TR6": [
+                "lincah",
+                "baik",
+                "luwes",
+                "sopan",
+                "rapi",
+                "jujur",
+                "terpuji",
+                "tertib",
+                "bagus",
+                "tenang",
+                "sahabat",
+                "baik hati",
+                "peka",
+                "hangat",
+                "tanggap",
+                "terbuka",
+                "akur",
+                "akrab",
+                "intim",
+                "mesra",
+                "rukun",
+                "harmonis",
+                "selaras",
+                "cocok",
+                "damai",
+                "sesuai",
+                "riang",
+                "silaturahim",
+                "sapa",
+                "ramah",
+                "santun",
+                "senang",
+                "gembira",
+                "sayang"
+            ],
+            "TR7": [
+                "gagah",
+                "kasep",
+                "rupawan",
+                "cakep",
+                "cakap",
+                "tampan",
+                "bunga",
+                "cantik",
+                "ganteng",
+                "elok",
+                "indah",
+                "menarik",
+                "ayu",
+                "tertib",
+                "bersih",
+                "cinta",
+                "sayang"
+            ]
+        }
+    ],
+    "list_of_test_tweet": [],
+    "list_of_train_tokens": [],
+    "list_of_train_tweet": [
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:41:21 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "optimistis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "pilgub",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jakarta",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830849287625936896",
+            "profil": null,
+            "status_train": null,
+            "train_id": 1,
+            "tweet": "b'Anies Baswedan Optimistis Menangkan Pilgub Jakarta https://t.co/3hwthUWAAK https://t.co/R1WualV3a0'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:41:18 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "optimistis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "pilgub",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jakarta",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830849277991624704",
+            "profil": null,
+            "status_train": null,
+            "train_id": 2,
+            "tweet": "b'Anies Baswedan Optimistis Menangkan Pilgub Jakarta https://t.co/9k7UTDPprX'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:41:18 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "optimistis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "pilgub",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jakarta",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830849274418061312",
+            "profil": null,
+            "status_train": null,
+            "train_id": 3,
+            "tweet": "b'Anies Baswedan Optimistis Menangkan Pilgub Jakarta https://t.co/arubgqyut5'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:41:17 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "bp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "optimistis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "pilgub",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jakarta",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830849272102793217",
+            "profil": null,
+            "status_train": null,
+            "train_id": 4,
+            "tweet": "b'[BP] Anies Baswedan Optimistis Menangkan Pilgub Jakarta https://t.co/GWymYKZg0B'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 23:54:26 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "rangkul",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kelompok",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ekstrimis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "e_kecewa",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "e_kecewa",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "e_kecewa",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830928078490607617",
+            "profil": null,
+            "status_train": null,
+            "train_id": 5,
+            "tweet": "b'RT @GunRomli: Akhirnya Anies Baswedan merangkul kelompok ekstrimis seperti FPI \\xf0\\x9f\\x91\\x8e\\xf0\\x9f\\x91\\x8e\\xf0\\x9f\\x91\\x8e https://t.co/QY7F1K4EVm'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 23:42:43 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "sengit",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "prabowo",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "amp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "blum",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830925128636567552",
+            "profil": null,
+            "status_train": null,
+            "train_id": 6,
+            "tweet": "b'@prabowo Suatu ketika Anies Baswedan masih sangat sengit pada Prabowo &amp; FPI, blum 3 tahun https://t.co/KCOWkM3LWg https://t.co/nymutq93o5'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 23:42:08 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "sengit",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "prabowo",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "amp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "blum",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830924984193134593",
+            "profil": null,
+            "status_train": null,
+            "train_id": 7,
+            "tweet": "b'RT @GunRomli: Suatu ketika Anies Baswedan masih sangat sengit pada Prabowo &amp; FPI, blum 3 tahun https://t.co/b8BP2vD8tN https://t.co/oQDsIG4\\xe2\\x80\\xa6'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 23:24:56 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "mencla",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menclenya",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "maksimal",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kelompok",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ekstremis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "rangkul",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830920653813395456",
+            "profil": null,
+            "status_train": null,
+            "train_id": 8,
+            "tweet": "b'RT @ulinyusron: Anies Baswedan mencla-menclenya maksimal:\\n- 2014 sebut FPI kelompok ekstremis. \\n- 2017 berangkulan dengan FPI. \\n\\nhttps://t.\\xe2\\x80\\xa6'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 23:17:12 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "nama",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "baik",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jaga",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "nama",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "baik",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "baik",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "the",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "one",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "and",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "the",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830918709422194689",
+            "profil": null,
+            "status_train": null,
+            "train_id": 9,
+            "tweet": "b'\"Yang kita punya hanya nama baik, jadi jaga nama baik-baik\" - Anies Baswedan\\n\\nThe one and the\\xe2\\x80\\xa6 https://t.co/KKj6956KNG'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 23:10:23 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "vs",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "habib",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "rizieq",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "via",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830916995025612806",
+            "profil": null,
+            "status_train": null,
+            "train_id": 10,
+            "tweet": "b'Anies Baswedan VS Habib Rizieq: https://t.co/ULXRwdn3DC via @YouTube'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 22:35:09 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "jelas",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "program",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kredit",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "rumah",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "dp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kaskusnews",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830908125855125504",
+            "profil": null,
+            "status_train": null,
+            "train_id": 11,
+            "tweet": "b'Penjelasan Anies Baswedan Soal Program Kredit Rumah Tanpa DP https://t.co/COj2qZ8z3M #KASKUSNews'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 22:14:00 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "kbylama",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "hasil",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "survei",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "spin",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "survey",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "amp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "polling",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "indonesia",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "elektabilitas",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "persen",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830902803233075200",
+            "profil": null,
+            "status_train": null,
+            "train_id": 12,
+            "tweet": "b'RT @pks_kbylama: Hasil survei SPIN (Survey &amp; Polling Indonesia), elektabilitas Anies Baswedan-Sandiaga Uno sebesar 41,74 persen.\\nhttps://t.\\xe2\\x80\\xa6'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 21:40:34 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "soal",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "program",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "cicil",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "rumah",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "uang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "muka",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830894388783898624",
+            "profil": null,
+            "status_train": null,
+            "train_id": 13,
+            "tweet": "b'RT @kompasiana: Menyoal Program Cicilan Rumah Tanpa Uang Muka Anies Baswedan https://t.co/4fZzJ40VoE'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 18:06:00 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "diskus",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "keras",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "verbal",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fisik",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830840394078248960",
+            "profil": null,
+            "status_train": null,
+            "train_id": 14,
+            "tweet": "b'RT @imanlagi: Ingin berdiskusi mengenai kekerasan verbal dan fisik dengan Anies Baswedan. https://t.co/LVSdTPTV7c'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:05:02 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "raffi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ahmad",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "temu",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "sosok",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ayah",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "temu",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "megapolitan",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "aniessandi",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830840151047761920",
+            "profil": null,
+            "status_train": null,
+            "train_id": 15,
+            "tweet": "b'RT @netralnews: Raffi Ahmad Temukan Sosok Ayah saat Bertemu Anies Baswedan https://t.co/8u1rRudY7h @RaffiAhmadLagi #Megapolitan #AniesSandi'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 17:45:30 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "seru",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ahy",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kompak",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "bongkar",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "raport",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "buruk",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ahok",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830835231649312768",
+            "profil": null,
+            "status_train": null,
+            "train_id": 16,
+            "tweet": "b'SERU !!! Ketika AHY dan ANIES BASWEDAN Kompak BONGKAR Raport Buruk AHOK: https://t.co/KuyWBI7iy0 melalui @YouTube'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 17:17:38 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "menteri",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "muhadjir",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "distribusi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kip",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "era",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "masalah",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830828220190773253",
+            "profil": null,
+            "status_train": null,
+            "train_id": 17,
+            "tweet": "b'Menteri Muhadjir Sebut Distribusi KIP Era Anies Baswedan Bermasalah https://t.co/LYRAsquIik'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 16:23:32 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "harap",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "panwaslu",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menindaklanjuti",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "temu",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "brosur",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kampanye",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "hitam",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "sdr",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "sdr",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "un",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830814606494822400",
+            "profil": null,
+            "status_train": null,
+            "train_id": 18,
+            "tweet": "b'Kita berharap Panwaslu menindaklanjuti temuan brosur kampanye hitam terhadap sdr Anies Baswedan dan Sdr Sandiaga Un\\xe2\\x80\\xa6 https://t.co/Pgueh6gLs5'"
+        }
+    ],
+    "list_of_train_tweet_neg": [
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 23:54:26 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "rangkul",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kelompok",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ekstrimis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "e_kecewa",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "e_kecewa",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "e_kecewa",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830928078490607617",
+            "profil": null,
+            "status_train": null,
+            "train_id": 5,
+            "tweet": "b'RT @GunRomli: Akhirnya Anies Baswedan merangkul kelompok ekstrimis seperti FPI \\xf0\\x9f\\x91\\x8e\\xf0\\x9f\\x91\\x8e\\xf0\\x9f\\x91\\x8e https://t.co/QY7F1K4EVm'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 23:42:43 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "sengit",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "prabowo",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "amp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "blum",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830925128636567552",
+            "profil": null,
+            "status_train": null,
+            "train_id": 6,
+            "tweet": "b'@prabowo Suatu ketika Anies Baswedan masih sangat sengit pada Prabowo &amp; FPI, blum 3 tahun https://t.co/KCOWkM3LWg https://t.co/nymutq93o5'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 23:42:08 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "sengit",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "prabowo",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "amp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "blum",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830924984193134593",
+            "profil": null,
+            "status_train": null,
+            "train_id": 7,
+            "tweet": "b'RT @GunRomli: Suatu ketika Anies Baswedan masih sangat sengit pada Prabowo &amp; FPI, blum 3 tahun https://t.co/b8BP2vD8tN https://t.co/oQDsIG4\\xe2\\x80\\xa6'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 23:24:56 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "mencla",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menclenya",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "maksimal",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kelompok",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ekstremis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "rangkul",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fpi",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830920653813395456",
+            "profil": null,
+            "status_train": null,
+            "train_id": 8,
+            "tweet": "b'RT @ulinyusron: Anies Baswedan mencla-menclenya maksimal:\\n- 2014 sebut FPI kelompok ekstremis. \\n- 2017 berangkulan dengan FPI. \\n\\nhttps://t.\\xe2\\x80\\xa6'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 17:17:38 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "menteri",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "muhadjir",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "distribusi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kip",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "era",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "masalah",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830828220190773253",
+            "profil": null,
+            "status_train": null,
+            "train_id": 17,
+            "tweet": "b'Menteri Muhadjir Sebut Distribusi KIP Era Anies Baswedan Bermasalah https://t.co/LYRAsquIik'"
+        },
+        {
+            "actual_sentiment": "Negatif",
+            "created_date": "Sun Feb 12 16:23:32 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "harap",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "panwaslu",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menindaklanjuti",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "temu",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "brosur",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kampanye",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "hitam",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "sdr",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "sdr",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "un",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830814606494822400",
+            "profil": null,
+            "status_train": null,
+            "train_id": 18,
+            "tweet": "b'Kita berharap Panwaslu menindaklanjuti temuan brosur kampanye hitam terhadap sdr Anies Baswedan dan Sdr Sandiaga Un\\xe2\\x80\\xa6 https://t.co/Pgueh6gLs5'"
+        }
+    ],
+    "list_of_train_tweet_net": [
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 23:10:23 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "vs",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "habib",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "rizieq",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "via",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830916995025612806",
+            "profil": null,
+            "status_train": null,
+            "train_id": 10,
+            "tweet": "b'Anies Baswedan VS Habib Rizieq: https://t.co/ULXRwdn3DC via @YouTube'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 22:35:09 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "jelas",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "program",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kredit",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "rumah",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "dp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kaskusnews",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830908125855125504",
+            "profil": null,
+            "status_train": null,
+            "train_id": 11,
+            "tweet": "b'Penjelasan Anies Baswedan Soal Program Kredit Rumah Tanpa DP https://t.co/COj2qZ8z3M #KASKUSNews'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 22:14:00 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "kbylama",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "hasil",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "survei",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "spin",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "survey",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "amp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "polling",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "indonesia",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "elektabilitas",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "persen",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830902803233075200",
+            "profil": null,
+            "status_train": null,
+            "train_id": 12,
+            "tweet": "b'RT @pks_kbylama: Hasil survei SPIN (Survey &amp; Polling Indonesia), elektabilitas Anies Baswedan-Sandiaga Uno sebesar 41,74 persen.\\nhttps://t.\\xe2\\x80\\xa6'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 21:40:34 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "soal",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "program",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "cicil",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "rumah",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "uang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "muka",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830894388783898624",
+            "profil": null,
+            "status_train": null,
+            "train_id": 13,
+            "tweet": "b'RT @kompasiana: Menyoal Program Cicilan Rumah Tanpa Uang Muka Anies Baswedan https://t.co/4fZzJ40VoE'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 18:06:00 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "diskus",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "keras",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "verbal",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "fisik",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830840394078248960",
+            "profil": null,
+            "status_train": null,
+            "train_id": 14,
+            "tweet": "b'RT @imanlagi: Ingin berdiskusi mengenai kekerasan verbal dan fisik dengan Anies Baswedan. https://t.co/LVSdTPTV7c'"
+        },
+        {
+            "actual_sentiment": "Netral",
+            "created_date": "Sun Feb 12 17:45:30 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "seru",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ahy",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "kompak",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "bongkar",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "raport",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "buruk",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ahok",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830835231649312768",
+            "profil": null,
+            "status_train": null,
+            "train_id": 16,
+            "tweet": "b'SERU !!! Ketika AHY dan ANIES BASWEDAN Kompak BONGKAR Raport Buruk AHOK: https://t.co/KuyWBI7iy0 melalui @YouTube'"
+        }
+    ],
+    "list_of_train_tweet_pos": [
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:41:21 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "optimistis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "pilgub",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jakarta",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830849287625936896",
+            "profil": null,
+            "status_train": null,
+            "train_id": 1,
+            "tweet": "b'Anies Baswedan Optimistis Menangkan Pilgub Jakarta https://t.co/3hwthUWAAK https://t.co/R1WualV3a0'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:41:18 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "optimistis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "pilgub",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jakarta",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830849277991624704",
+            "profil": null,
+            "status_train": null,
+            "train_id": 2,
+            "tweet": "b'Anies Baswedan Optimistis Menangkan Pilgub Jakarta https://t.co/9k7UTDPprX'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:41:18 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "optimistis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "pilgub",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jakarta",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830849274418061312",
+            "profil": null,
+            "status_train": null,
+            "train_id": 3,
+            "tweet": "b'Anies Baswedan Optimistis Menangkan Pilgub Jakarta https://t.co/arubgqyut5'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:41:17 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "bp",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "optimistis",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "menang",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "pilgub",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jakarta",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830849272102793217",
+            "profil": null,
+            "status_train": null,
+            "train_id": 4,
+            "tweet": "b'[BP] Anies Baswedan Optimistis Menangkan Pilgub Jakarta https://t.co/GWymYKZg0B'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 23:17:12 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "nama",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "baik",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "jaga",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "nama",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "baik",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "baik",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "the",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "one",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "and",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "the",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830918709422194689",
+            "profil": null,
+            "status_train": null,
+            "train_id": 9,
+            "tweet": "b'\"Yang kita punya hanya nama baik, jadi jaga nama baik-baik\" - Anies Baswedan\\n\\nThe one and the\\xe2\\x80\\xa6 https://t.co/KKj6956KNG'"
+        },
+        {
+            "actual_sentiment": "Positif",
+            "created_date": "Sun Feb 12 18:05:02 +0000 2017",
+            "filter_tweet": [
+                {
+                    "id": null,
+                    "name": "raffi",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ahmad",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "temu",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "sosok",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "ayah",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "temu",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "megapolitan",
+                    "profil": null,
+                    "weight": 0
+                },
+                {
+                    "id": null,
+                    "name": "aniessandi",
+                    "profil": null,
+                    "weight": 0
+                },
+				{
+				     "id": null,
+                    "name": "pimpin",
+                    "profil": null,
+                    "weight": 0
+                }
+            ],
+            "id_str": "830840151047761920",
+            "profil": null,
+            "status_train": null,
+            "train_id": 15,
+            "tweet": "b'RT @netralnews: Raffi Ahmad Temukan Sosok Ayah saat Bertemu Anies Baswedan https://t.co/8u1rRudY7h @RaffiAhmadLagi #Megapolitan #AniesSandi'"
+        }
+    ]
+}

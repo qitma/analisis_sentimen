@@ -5,7 +5,7 @@ list_whole = []
 list_individu = []
 list_profil = []
 fold_number = 10
-for i in range(1,11):
+for i in range(1,2):
     textAnalyze = TextAnalyze()
     store = Store()
     textAnalyze.import_json_to_object('dataset/data_1000_agus_sylvi.json')
