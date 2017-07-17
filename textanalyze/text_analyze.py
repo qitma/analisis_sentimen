@@ -286,10 +286,11 @@ class TextAnalyze(object):
         not_stop = True
         max_q = 0
         iterasi = 0
-        list_of_train_tokens = cls.initialize_train_tokens(lot)
-        cls.feature_extraction(lot, list_of_train_tokens)
-        cls.grouping_profil(lot)
-        model_classification = cls.naive_bayes_make_classification_model(lot=lot, train_token=list_of_train_tokens)
+        # list_of_train_tokens = cls.initialize_train_tokens(lot)
+        # cls.feature_extraction(lot, list_of_train_tokens)
+        # cls.grouping_profil(lot)
+        # model_classification = cls.naive_bayes_make_classification_model(lot=lot, train_token=list_of_train_tokens)
+        model_classification = cls.make_classification_model(lot)
         #cls.print_cls(model_classification)
         while(not_stop):
             print("---------iterasi {}---------".format(str(iterasi)))
@@ -364,7 +365,7 @@ class TextAnalyze(object):
                 print("Max Query sudah tercapai atau data pool sudah habis!!")
                 break
             max_q += 1
-            print("Make annotation from oracle/data gold")
+            print("Labelling data by oracle/data gold")
             if is_interactive:
                 lot.extend(cls.interactive_label(list_of_query))
             else:
@@ -374,10 +375,11 @@ class TextAnalyze(object):
                     print("data gold is None")
                     lot.extend(cls.interactive_label(list_of_query))
             print("Upgrade machine knowledge...")
-            list_of_train_tokens = cls.initialize_train_tokens(lot)
-            cls.feature_extraction(lot, list_of_train_tokens)
-            cls.grouping_profil(lot)
-            model_classification = cls.naive_bayes_make_classification_model(lot=lot, train_token=list_of_train_tokens)
+            # list_of_train_tokens = cls.initialize_train_tokens(lot)
+            # cls.feature_extraction(lot, list_of_train_tokens)
+            # cls.grouping_profil(lot)
+            # model_classification = cls.naive_bayes_make_classification_model(lot=lot, train_token=list_of_train_tokens)
+            model_classification = cls.make_classification_model(lot)
 
         print("Active learning done...")
         return list_whole,list_individu,data_train_rekap
@@ -628,6 +630,18 @@ class TextAnalyze(object):
 #======================== END Clustering =============================
 
 #======================== Classificatioon ============================
+    def make_classification_model(cls,lot):
+        """
+        :param lot: list tweet
+        :param train_token: list token
+        :return: model klasifikasi
+        :note: merubah nilai lot (reference)
+        """
+        list_token = cls.initialize_train_tokens(lot)
+        cls.feature_extraction(lot=lot,list_of_tokens=list_token)
+        cls.grouping_profil(lot)
+        model = cls.naive_bayes_make_classification_model(lot=lot,train_token=list_token)
+        return model
 
     def naive_bayes_make_classification_model(cls, lot,train_token):
         loc = cls.initialization_classification_model(lot)
@@ -799,11 +813,12 @@ class TextAnalyze(object):
                         term.weight = cls.calculate_tf(token=term.name, filterTweet=tweet.filter_tweet, isTrain=False)
                 list_of_train_tweet = [tweet for idx,tweet in enumerate(lot) if tweet not in list_of_validation_tweet]
 
-                list_of_train_tokens = cls.initialize_train_tokens(list_of_train_tweet)
-                cls.feature_extraction(list_of_train_tweet,list_of_train_tokens)
-                cls.grouping_profil(list_of_train_tweet)
+                # list_of_train_tokens = cls.initialize_train_tokens(list_of_train_tweet)
+                # cls.feature_extraction(list_of_train_tweet,list_of_train_tokens)
+                # cls.grouping_profil(list_of_train_tweet)
                 cls.grouping_profil(lot_test)
-                model_classification = cls.naive_bayes_make_classification_model(lot=list_of_train_tweet,train_token=list_of_train_tokens)
+                # model_classification = cls.naive_bayes_make_classification_model(lot=list_of_train_tweet,train_token=list_of_train_tokens)
+                model_classification = cls.make_classification_model(list_of_train_tweet)
                 test_result = cls.naive_bayes_determine_classification(lot=lot_test, model=model_classification)
                 profil = cls.calculate_profil(lot=test_result)
                 for i in range(1,8):
@@ -1120,8 +1135,6 @@ class TextAnalyze(object):
         for tokens in list_of_tokens:
             count_token = 0
             for tweet in lot:
-                #count = Counter(getattr(term, 'name') for term in tweet.filter_tweet)
-                #if tokens['name'] in tweet.filter_tweet:
                 if any(term.name == tokens['name'] for term in tweet.filter_tweet):
                     count_token+=1
             if count_token == 0:

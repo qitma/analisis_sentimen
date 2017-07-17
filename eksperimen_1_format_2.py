@@ -5,9 +5,9 @@ list_whole = []
 list_individu = []
 list_profil = []
 fold_number = 10
+store = Store()
 for i in range(1,2):
     textAnalyze = TextAnalyze()
-    store = Store()
     textAnalyze.import_json_to_object('dataset/data_1000_agus_sylvi.json')
     individual_data,whole_data,profil = textAnalyze.k_fold_cross_validation(textAnalyze.list_of_train_tweet,K=fold_number,averaging="micro")
     whole = {'performa':[value*100 for value in whole_data]}
